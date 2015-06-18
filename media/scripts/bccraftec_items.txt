@@ -1,0 +1,10 @@
+module CrafTec
+{
+	item Project
+	{
+		Weight = 1,
+		Type = Normal,
+		DisplayName = CrafTec Project,
+		Icon = CrafTecProject
+	}
+}
