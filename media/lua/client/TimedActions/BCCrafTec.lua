@@ -22,31 +22,6 @@ require "TimedActions/ISBaseTimedAction"
 -- }}}
 --]]
 
-dump = function(o, lvl) -- {{{ Small function to dump an object.
-	if lvl == nil then lvl = 5 end
-	if lvl < 0 then return "SO ("..tostring(o)..")" end
-
-	if type(o) == 'table' then
-		local s = '{ '
-		for k,v in pairs(o) do
-			if k == "prev" or k == "next" then
-				s = s .. '['..k..'] = '..tostring(v);
-			else
-				if type(k) ~= 'number' then k = '"'..k..'"' end
-				s = s .. '['..k..'] = ' .. dump(v, lvl - 1) .. ',\n'
-			end
-		end
-		return s .. '}\n'
-	else
-		return tostring(o)
-	end
-end
--- }}}
-pline = function (text) -- {{{ Print text to logfile
-	print(tostring(text));
-end
--- }}}
-
 BCCrafTec = ISBaseTimedAction:derive("BCCrafTec");
 function BCCrafTec:isValid() -- {{{
 	if self.item and self.character then
@@ -87,7 +62,6 @@ function BCCrafTec:update() -- {{{
 	if progress > 0 then
 		self.lastCheck = timeHours;
 		canProgress["progress"] = math.min(canProgress["progress"] + progress, canProgress["time"]);
-		pline(dump(canProgress));
 	end
 
 	if canProgress["progress"] >= canProgress["time"] then

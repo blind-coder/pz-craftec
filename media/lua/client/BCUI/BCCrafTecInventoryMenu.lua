@@ -1,15 +1,99 @@
+dump = function(o, lvl) -- {{{ Small function to dump an object.
+	if lvl == nil then lvl = 5 end
+	if lvl < 0 then return "SO ("..tostring(o)..")" end
+
+	if type(o) == 'table' then
+		local s = '{ '
+		for k,v in pairs(o) do
+			if k == "prev" or k == "next" then
+				s = s .. '['..k..'] = '..tostring(v);
+			else
+				if type(k) ~= 'number' then k = '"'..k..'"' end
+				s = s .. '['..k..'] = ' .. dump(v, lvl - 1) .. ',\n'
+			end
+		end
+		return s .. '}\n'
+	else
+		return tostring(o)
+	end
+end
+-- }}}
+pline = function (text) -- {{{ Print text to logfile
+	print(tostring(text));
+end
+-- }}}
+
+BCCrafTecRecipes = {
+	{
+		product = "Base.AxeStone",
+		ingredients = { ["Base.TreeBranch"] = 1, ["Base.SharpedStone"] = 1, ["Base.RippedSheets"] = 1},
+		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
+	}
+};
+--[[
+--To extend CrafTecs, just add to this object like this:
+--Simple recipe:
+--local product = "Base.AxeStone";
+--local ingredients = { ["Base.TreeBranch"] = 1, ["Base.SharpedStone"] = 1, ["Base.RippedSheets"] = 1};
+--local requirements = { any = { any = { level = 0, time = 60, progress = 0 } } };
+--table.insert(BCCrafTecRecipes, {product = product, ingredients = ingredients, requirements = requirements});
+--
+--More complex:
+--local product = "Base.Generator";
+--local ingredients = { ["Base.ElectronicsScrap"] = 25, ["Base.Plank"] = 5 };
+--local requirements = {
+--	Engineer = {
+--		Woodwork = {
+--			level = 2,
+--			time = 600,
+--			progress = 0
+--		}
+--	},
+--	Electrician = {
+--		Electricity = {
+--			level = 4,
+--			time = 300,
+--			progress = 0
+--		}
+--	},
+--	any = {
+--		any = {
+--			level = 0,
+--			time = 120,
+--			progress = 0
+--		}
+--	}
+--};
+--table.insert(BCCrafTecRecipes, {product = product, ingredients = ingredients, requirements = requirements});
+--]]
+
 BCCrafTecInventoryMenu = {};
 
-BCCrafTecInventoryMenu.StartCrafTec = function (player, item, requirements) -- {{{
-	player = getSpecificPlayer(player);
-	local CrafTecItem = player:getInventory():AddItem("CrafTec.Project");
-	local modData = CrafTecItem:getModData();
+BCCrafTecInventoryMenu.StartCrafTec = function (player, recipe) -- {{{
+	playerObj = getSpecificPlayer(player);
+
+	local canBuild = true;
+	for ingredient,amount in pairs(recipe["ingredients"]) do
+		if not BCCrafTecInventoryMenu.hasAllIngredients(player, recipe["ingredients"]) then
+			canBuild = false;
+		end
+	end
+	if not canBuild then return end
+
+	local item = playerObj:getInventory():AddItem("CrafTec.Project");
+	local modData = item:getModData();
+	for ingredient,amount in pairs(recipe["ingredients"]) do
+		modData["need:"..ingredient] = amount;
+	end
+	pline(dump(item));
+	buildUtil.consumeMaterial({modData = modData, player = player, sq = getCell():getGridSquare(playerObj:getX(), playerObj:getY(), playerObj:getZ())});
+
 	modData["CrafTec"] = {
-		product = item,
-		requirements = requirements
+		product = recipe["product"],
+		requirements = recipe["requirements"]
 	};
 
-	ISTimedActionQueue.add(BCCrafTec:new(player, CrafTecItem, 0));
+	ISTimedActionQueue.add(BCCrafTec:new(playerObj, item, 0));
 end
 -- }}}
 BCCrafTecInventoryMenu.ContinueCrafTec = function(player, item) -- {{{
@@ -17,6 +101,16 @@ BCCrafTecInventoryMenu.ContinueCrafTec = function(player, item) -- {{{
 	ISTimedActionQueue.add(BCCrafTec:new(player, item, 0));
 end
 -- }}}
+BCCrafTecInventoryMenu.hasAllIngredients = function(player, ingredients)--{{{
+	local inventory = getSpecificPlayer(player):getInventory();
+	for ing,cnt in pairs(ingredients) do
+		if cnt > inventory:getItemCount(ing) then
+			return false
+		end
+	end
+	return true;
+end
+--}}}
 BCCrafTecInventoryMenu.InventoryMenu = function(player, context, items) -- {{{
 	item = items[1];
 	if not instanceof(item, "InventoryItem") then
@@ -32,33 +126,18 @@ BCCrafTecInventoryMenu.InventoryMenu = function(player, context, items) -- {{{
 		subMenu:addOption("Continue CrafTec", player, BCCrafTecInventoryMenu.ContinueCrafTec, item)
 	end
 
-	local requirements = { any = { any = { level = 0, time = 60, progress = 0 } } };
-	subMenu:addOption("Craft Stone Axe", player, BCCrafTecInventoryMenu.StartCrafTec, "Base.AxeStone", requirements);
+	for _,recipe in pairs(BCCrafTecRecipes) do
+		for ingredient,amount in pairs(recipe["ingredients"]) do
+			if item:getFullType() == ingredient then
+				local o = subMenu:addOption("Craft "..recipe.product, player, BCCrafTecInventoryMenu.StartCrafTec, recipe);
+				if not BCCrafTecInventoryMenu.hasAllIngredients(player, recipe["ingredients"]) then
+					o.notAvailable = true;
+				end
+			end
+		end
+	end
 
-	local requirements = {
-		Engineer = {
-			Woodwork = {
-				level = 2,
-				time = 600,
-				progress = 0
-			}
-		},
-		Electrician = {
-			Electricity = {
-				level = 5,
-				time = 300,
-				progress = 0
-			}
-		},
-		any = {
-			any = {
-				level = 0,
-				time = 120,
-				progress = 0
-			}
-		}
-	};
-	subMenu:addOption("Craft a generator", player, BCCrafTecInventoryMenu.StartCrafTec, "Base.Generator", requirements);
+	return;
 end
 -- }}}
 
