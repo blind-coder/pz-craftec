@@ -5,6 +5,7 @@ BCCrafTecRecipes = {
 	{
 		product = "Base.AxeStone",
 		ingredients = { ["Base.TreeBranch"] = 1, ["Base.SharpedStone"] = 1, ["Base.RippedSheets"] = 1},
+		tools = {},
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	}
 };
@@ -20,6 +21,7 @@ BCCrafTecRecipes = {
 --More complex:
 --local product = "Base.Generator";
 --local ingredients = { ["Base.ElectronicsScrap"] = 25, ["Base.Plank"] = 5 };
+--local tools = { "Base.Saw", "Base.Screwdriver" };
 --local requirements = {
 --	Engineer = {
 --		Woodwork = {
@@ -43,7 +45,7 @@ BCCrafTecRecipes = {
 --		}
 --	}
 --};
---table.insert(BCCrafTecRecipes, {product = product, ingredients = ingredients, requirements = requirements});
+--table.insert(BCCrafTecRecipes, {product = product, ingredients = ingredients, tools = tools, requirements = requirements});
 -- }}}
 --]] 
 
@@ -121,6 +123,20 @@ BCCrafTecInventoryMenu.InventoryMenu = function(player, context, items) -- {{{
 end
 -- }}}
 
+function BCCrafTecInventoryMenu.GetItemInstance(type) -- {{{ taken from ISCraftingUI.lua
+	if not BCCrafTecInventoryMenu.ItemInstances then BCCrafTecInventoryMenu.ItemInstances = {} end
+	local item = BCCrafTecInventoryMenu.ItemInstances[type];
+	if not item then
+		item = InventoryItemFactory.CreateItem(type);
+		if item then
+			BCCrafTecInventoryMenu.ItemInstances[type] = item;
+			BCCrafTecInventoryMenu.ItemInstances[item:getFullType()] = item;
+		end
+	end
+	return item;
+end
+-- }}}
+
 BCCrafTecInventoryMenu.ISToolTipInvRender = ISToolTipInv.render;
 function ISToolTipInv:render() -- {{{
 	BCCrafTecInventoryMenu.ISToolTipInvRender(self);
@@ -134,6 +150,16 @@ function ISToolTipInv:render() -- {{{
 
 	local modData = self.item:getModData()["CrafTec"];
 	table.insert(text, "Project: "..modData["product"]);
+
+	local needsTools = false;
+	for k,tool in pairs(modData["tools"]) do
+		if not needsTools then
+			needsTools = true;
+			table.insert(text, "Needs tools:");
+		end
+		local item = BCCrafTecInventoryMenu.GetItemInstance(tool);
+		table.insert(text, "  "..item:getDisplayName());
+	end
 
 	for k,profession in pairs(modData["requirements"]) do
 		table.insert(text, "Profession: "..k);

@@ -5,6 +5,7 @@ require "TimedActions/ISBaseTimedAction"
 --ModData used:
 --CrafTec: Object containing modData for CrafTecs with following attributes:
 --  product: contains getFullType (e.g.: "Base.Axe") of finished product
+--  tools: contains list of required tools (e.g.: { "Base.Saw", "Base.Screwdriver" })
 --  requirements: Object containing requirements of Skills and Professions, e.g.:
 --    Elecrician:
 --      any: {level: 0, time: 100, progress: 10} -- any electrician can do this and take 100 minutes and already 10 minutes done
@@ -46,6 +47,19 @@ function BCCrafTec:update() -- {{{
 				end
 			end
 		end
+	end
+
+	local haveAllTools = true;
+	for k,tool in pairs(modData["tools"] or {}) do
+		if (haveAllTools) and (not (self.character:getInventory():Find(tool))) then
+			haveAllTools = false;
+		end
+	end
+
+	if not haveAllTools then
+		self.character:Say("I don't have the required tools.");
+		self:stop();
+		return;
 	end
 
 	if not canProgress then
