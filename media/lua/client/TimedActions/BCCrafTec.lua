@@ -71,28 +71,28 @@ end
 -- }}}
 
 function BCCrafTec:start() -- {{{
-    self.item:setJobType('CrafTec '.. self.item:getModData()["CrafTec"]["product"]);
-    self.item:setJobDelta(0.0);
-    self.startTimeHours = getGameTime():getTimeOfDay()
-		self.lastCheck = self.startTimeHours;
+	self.item:setJobType('CrafTec '.. self.item:getModData()["CrafTec"]["product"]);
+	self.item:setJobDelta(0.0);
+	self.startTimeHours = getGameTime():getTimeOfDay()
+	self.lastCheck = self.startTimeHours;
 end
 -- }}}
 
 function BCCrafTec:stop() -- {{{
-    ISBaseTimedAction.stop(self);
-		if self.item then
-			self.item:setJobDelta(0.0);
-		end
+	ISBaseTimedAction.stop(self);
+	if self.item then
+		self.item:setJobDelta(0.0);
+	end
 
-		self:checkIfFinished();
+	self:checkIfFinished();
 end
 -- }}}
 
 function BCCrafTec:perform() -- {{{
-    self.item:getContainer():setDrawDirty(true);
-    self.item:setJobDelta(0.0);
-    -- needed to remove from queue / start next.
-    ISBaseTimedAction.perform(self);
+	self.item:getContainer():setDrawDirty(true);
+	self.item:setJobDelta(0.0);
+	-- needed to remove from queue / start next.
+	ISBaseTimedAction.perform(self);
 end
 -- }}}
 
@@ -136,22 +136,22 @@ end
 -- }}}
 
 function BCCrafTec:new(character, item, time) -- {{{
-		local modData = item:getModData();
-		if not modData["CrafTec"] then
-			getSpecificPlayer(character):Say("BUG CRAFTEC001: item has no modData['CrafTec']");
-			return false;
-		end
+	local modData = item:getModData();
+	if not modData["CrafTec"] then
+		getSpecificPlayer(character):Say("BUG CRAFTEC001: item has no modData['CrafTec']");
+		return false;
+	end
 
-    local o = {}
+	local o = {}
 
-    setmetatable(o, self)
-    self.__index = self
-    o.character = character;
-    o.item = item;
-    o.stopOnWalk = true;
-    o.stopOnRun = true;
+	setmetatable(o, self)
+	self.__index = self
+	o.character = character;
+	o.item = item;
+	o.stopOnWalk = true;
+	o.stopOnRun = true;
 
-    o.maxTime = o:calculateMaxTime();
-    return o;
+	o.maxTime = o:calculateMaxTime();
+	return o;
 end
 -- }}}

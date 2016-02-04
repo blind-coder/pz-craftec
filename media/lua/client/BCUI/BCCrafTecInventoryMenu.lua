@@ -1,27 +1,5 @@
-dump = function(o, lvl) -- {{{ Small function to dump an object.
-	if lvl == nil then lvl = 5 end
-	if lvl < 0 then return "SO ("..tostring(o)..")" end
-
-	if type(o) == 'table' then
-		local s = '{ '
-		for k,v in pairs(o) do
-			if k == "prev" or k == "next" then
-				s = s .. '['..k..'] = '..tostring(v);
-			else
-				if type(k) ~= 'number' then k = '"'..k..'"' end
-				s = s .. '['..k..'] = ' .. dump(v, lvl - 1) .. ',\n'
-			end
-		end
-		return s .. '}\n'
-	else
-		return tostring(o)
-	end
-end
--- }}}
-pline = function (text) -- {{{ Print text to logfile
-	print(tostring(text));
-end
--- }}}
+require "bcUtils_client"
+require "bcUtils_genericTA"
 
 BCCrafTecRecipes = {
 	{
@@ -31,6 +9,7 @@ BCCrafTecRecipes = {
 	}
 };
 --[[
+-- {{{
 --To extend CrafTecs, just add to this object like this:
 --Simple recipe:
 --local product = "Base.AxeStone";
@@ -65,7 +44,8 @@ BCCrafTecRecipes = {
 --	}
 --};
 --table.insert(BCCrafTecRecipes, {product = product, ingredients = ingredients, requirements = requirements});
---]]
+-- }}}
+--]] 
 
 BCCrafTecInventoryMenu = {};
 
@@ -85,7 +65,7 @@ BCCrafTecInventoryMenu.StartCrafTec = function (player, recipe) -- {{{
 	for ingredient,amount in pairs(recipe["ingredients"]) do
 		modData["need:"..ingredient] = amount;
 	end
-	pline(dump(item));
+	-- bcUtils.pline(bcUtils.dump(item));
 	buildUtil.consumeMaterial({modData = modData, player = player, sq = getCell():getGridSquare(playerObj:getX(), playerObj:getY(), playerObj:getZ())});
 
 	modData["CrafTec"] = {
