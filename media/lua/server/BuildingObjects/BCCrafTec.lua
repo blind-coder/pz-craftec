@@ -1,4 +1,6 @@
+require "BuildingObjects/ISWoodenWall";
 require "bcUtils";
+
 BCCrafTecObject = ISBuildingObject:derive("BCCrafTecObject");
 
 function BCCrafTecObject:create(x, y, z) -- {{{
@@ -19,14 +21,14 @@ function BCCrafTecObject:create(x, y, z) -- {{{
 		self.modData.recipe.ingredientsAdded[k] = 0;
 	end
 end -- }}}
-function BCCrafTecObject:tryBuild(x, y, z)
+function BCCrafTecObject:tryBuild(x, y, z) -- {{{
 	-- We're just a 'plan' thingie with little to no effect on the world.
 	-- Just place the item...
 	-- What could possibly go wrong?
 	self:create(x, y, z);
 end
+-- }}}
 function BCCrafTecObject:new(recipe) -- {{{
-	bcUtils.pline("BCCrafTecObject:new()");
 	local o = {};
 	setmetatable(o, self);
 	self.__index = self;
@@ -64,3 +66,30 @@ function BCCrafTecObject:render(x, y, z, square)
 	ISBuildingObject.render(self, x, y, z, square)
 end
 --}}} ]]
+
+function ISWoodenWall.createFromCrafTec(crafTec, character)
+	local md = crafTec:getModData()["recipe"];
+
+	local o = ISWoodenWall:new(md.images.east, md.images.north, crafTec.corner);
+
+	local x = crafTec:getSquare():getX();
+	local y = crafTec:getSquare():getY();
+	local z = crafTec:getSquare():getZ();
+
+	local cell = getWorld():getCell();
+	o.sq = cell:getGridSquare(x, y, z);
+
+	o.player = character;
+	print(tostring(cell)..", "..tostring(o.sq)..", "..bcUtils.dump(crafTec:getSprite())..", "..tostring(crafTec.north)..", "..tostring(o));
+	o.javaObject = IsoThumpable.new(cell, o.sq, crafTec:getSprite(), crafTec.north, o);
+	buildUtil.setInfo(o.javaObject, o);
+	o.javaObject:setMaxHealth(o:getHealth());
+	o.javaObject:setBreakSound("breakdoor");
+	buildUtil.addWoodXp(o);
+	o.sq:AddSpecialObject(o.javaObject);
+	o.sq:RecalcAllWithNeighbours(true);
+	o.javaObject:transmitCompleteItemToServer();
+	if o.sq:getZone() then
+		o.sq:getZone():setHaveConstruction(true);
+	end
+end

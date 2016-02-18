@@ -3,14 +3,16 @@ require "bcUtils_client"
 if not BCCrafTec then BCCrafTec = {} end
 BCCrafTec.Recipes = { -- {{{
 	{ product = getText("Logwall"),
-		ingredients = { ["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
+		resultClass = "ISWoodenWall",
+		ingredients = {}, -- { ["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {["Base.Hammer/Base.HammerStone"] = 1, ["Base.Saw"] = 1},
 		canBarricade = false,
 		isValid = BCCrafTec.LogwallIsValid,
-		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
+		requirements = { any = { any = { level = 0, time = 10, progress = 0 } } }
 	},
 	{ product = getText("Logwall"),
+		resultClass = "ISWoodenWall",
 		ingredients = { ["Base.Log"] = 4, ["Base.Twine"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {},
@@ -19,6 +21,7 @@ BCCrafTec.Recipes = { -- {{{
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	},
 	{ product = getText("Logwall"),
+		resultClass = "ISWoodenWall",
 		ingredients = { ["Base.Log"] = 4, ["Base.Rope"] = 2},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {},

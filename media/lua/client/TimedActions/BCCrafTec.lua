@@ -141,10 +141,12 @@ function BCCrafTecTA:checkIfFinished() -- {{{
 		end
 	end
 
-	-- TODO
-	--local inventory = self.character:getInventory();
-	--inventory:AddItem(modData["product"]);
-	--inventory:Remove(self.item);
+	local result = _G[modData.resultClass].createFromCrafTec(self.object, self.player);
+	local sq = self.object:getSquare();
+	if isClient() then
+		sq:transmitRemoveItemFromSquare(self.object);
+	end
+	sq:RemoveTileObject(self.object);
 
 	self.object = nil;
 	if not self.stopped then
@@ -183,6 +185,7 @@ function BCCrafTecTA:new(character, object) -- {{{
 	setmetatable(o, self)
 	self.__index = self
 	o.character = getSpecificPlayer(character);
+	o.player = character;
 	o.object = object;
 	o.stopOnWalk = true;
 	o.stopOnRun = true;
