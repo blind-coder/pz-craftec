@@ -23,8 +23,8 @@ require "TimedActions/ISBaseTimedAction"
 -- }}}
 --]]
 
-BCCrafTec = ISBaseTimedAction:derive("BCCrafTec");
-function BCCrafTec:isValid() -- {{{
+BCCrafTecTA = ISBaseTimedAction:derive("BCCrafTecTA");
+function BCCrafTecTA:isValid() -- {{{
 	if self.item and self.character then
 		return self.character:getInventory():contains(self.item);
 	end
@@ -32,7 +32,7 @@ function BCCrafTec:isValid() -- {{{
 end
 -- }}}
 
-function BCCrafTec:update() -- {{{
+function BCCrafTecTA:update() -- {{{
 	local modData = self.item:getModData()["CrafTec"];
 	local canProgress = false;
 	local prof = self.character:getDescriptor():getProfession();
@@ -84,7 +84,7 @@ function BCCrafTec:update() -- {{{
 end
 -- }}}
 
-function BCCrafTec:start() -- {{{
+function BCCrafTecTA:start() -- {{{
 	self.item:setJobType('CrafTec '.. self.item:getModData()["CrafTec"]["product"]);
 	self.item:setJobDelta(0.0);
 	self.startTimeHours = getGameTime():getTimeOfDay()
@@ -92,7 +92,7 @@ function BCCrafTec:start() -- {{{
 end
 -- }}}
 
-function BCCrafTec:stop() -- {{{
+function BCCrafTecTA:stop() -- {{{
 	ISBaseTimedAction.stop(self);
 	if self.item then
 		self.item:setJobDelta(0.0);
@@ -102,7 +102,7 @@ function BCCrafTec:stop() -- {{{
 end
 -- }}}
 
-function BCCrafTec:perform() -- {{{
+function BCCrafTecTA:perform() -- {{{
 	self.item:getContainer():setDrawDirty(true);
 	self.item:setJobDelta(0.0);
 	-- needed to remove from queue / start next.
@@ -110,7 +110,7 @@ function BCCrafTec:perform() -- {{{
 end
 -- }}}
 
-function BCCrafTec:checkIfFinished() -- {{{
+function BCCrafTecTA:checkIfFinished() -- {{{
 	if not self.item then return end
 
 	local modData = self.item:getModData()["CrafTec"];
@@ -132,7 +132,7 @@ function BCCrafTec:checkIfFinished() -- {{{
 end
 -- }}}
 
-function BCCrafTec:calculateMaxTime() -- {{{
+function BCCrafTecTA:calculateMaxTime() -- {{{
 	local requirements = self.item:getModData()["CrafTec"]["requirements"];
 	local retVal = 1;
 
@@ -149,7 +149,7 @@ function BCCrafTec:calculateMaxTime() -- {{{
 end
 -- }}}
 
-function BCCrafTec:new(character, item, time) -- {{{
+function BCCrafTecTA:new(character, item, time) -- {{{
 	local modData = item:getModData();
 	if not modData["CrafTec"] then
 		getSpecificPlayer(character):Say("BUG CRAFTEC001: item has no modData['CrafTec']");
