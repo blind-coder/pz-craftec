@@ -1,3 +1,4 @@
+require "bcUtils";
 BCCrafTec = ISBuildingObject:derive("BCCrafTec");
 
 function BCCrafTec:createObject(x, y, z, north, sprite) -- {{{
@@ -94,29 +95,31 @@ function BCCrafTec:sendUpdateToServer() -- {{{
 	end
 end -- }}}
 
-function BCCrafTec:new() -- {{{
-	DirtyWaterServer.pline("BCCrafTec:new()");
+function BCCrafTec:new(recipe) -- {{{
+	bcUtils.pline("BCCrafTec:new()");
 	local o = {};
 	setmetatable(o, self);
 	self.__index = self;
 	o:init();
-	o.sprites = {};
-	o.sprites.westSprite = "media/textures/destill1a_east-west.png";
-	o.sprites.northSprite = "media/textures/destill1a_south-north.png";
-	o.sprites.southSprite = "media/textures/destill1a_north-south.png";
-	o.sprites.eastSprite = "media/textures/destill1a_west-east.png";
+	o.recipe = recipe;
+	o.images = {};
+	o.images.westSprite   =  recipe.images.west;
+	o.images.northSprite  =  recipe.images.north;
+	o.images.southSprite  =  recipe.images.south;
+	o.images.eastSprite   =  recipe.images.east;
 
-	o:setSprite(o.sprites.westSprite);
-	o:setNorthSprite(o.sprites.northSprite);
-	o:setEastSprite(o.sprites.eastSprite);
-	o:setSouthSprite(o.sprites.southSprite);
-	o.canPassThrough = false;
-	o.blockAllTheSquare = true;
+	o:setSprite(o.images.westSprite);
+	o:setNorthSprite(o.images.northSprite);
+	o:setEastSprite(o.images.eastSprite);
+	o:setSouthSprite(o.images.southSprite);
+
+	o.name = recipe.name;
+	o.canBarricade = recipe.canBarricade;
+
+	o.canPassThrough = true;
+	o.blockAllTheSquare = false;
 	o.dismantable = true;
 	o.noNeedHammer = true;
-	o.name = "SimpleStill";
-
-	DirtyWaterServer.pline("BCCrafTec:new finished");
 	return o;
 end -- }}}
 
@@ -136,10 +139,10 @@ function BCCrafTec:changeSprite() -- {{{
 	if self.javaObject == nil then return end;
 
 	local newSprite = nil;
-	if self.west then newSprite = self.sprites.westSprite; end
-	if self.north then newSprite = self.sprites.northSprite; end
-	if self.east then newSprite = self.sprites.eastSprite; end
-	if self.south then newSprite = self.sprites.southSprite; end
+	if self.west then newSprite = self.images.westSprite; end
+	if self.north then newSprite = self.images.northSprite; end
+	if self.east then newSprite = self.images.eastSprite; end
+	if self.south then newSprite = self.images.southSprite; end
 
 	if newSprite == nil then return end
 	-- For some reason this doesn't work and I don't know why :( TODO
