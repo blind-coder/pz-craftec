@@ -12,7 +12,12 @@ function BCCrafTecObject:create(x, y, z) -- {{{
 
   self.javaObject:transmitCompleteItemToServer();
 	self.modData = self.javaObject:getModData();
+	self.recipe.started = true;
 	self.modData.recipe = self.recipe;
+	self.modData.recipe.ingredientsAdded = {};
+	for k,v in pairs(selfself.modData.recipe.ingredients) do
+		self.modData.recipe.ingredientsAdded[k] = 0;
+	end
 end -- }}}
 function BCCrafTecObject:tryBuild(x, y, z)
 	-- We're just a 'plan' thingie with little to no effect on the world.

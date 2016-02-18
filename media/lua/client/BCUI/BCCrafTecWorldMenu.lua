@@ -16,7 +16,7 @@ BCCrafTec.Recipes = {
 	{ product = getText("Logwall"),
 		ingredients = { ["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
-		tools = {}, -- {"Base.Hammer/Base.StoneHammer" = 1, "Base.Saw" = 1}
+		tools = {["Base.Hammer/Base.HammerStone"] = 1, ["Base.Saw"] = 1},
 		canBarricade = false,
 		isValid = BCCrafTec.LogwallIsValid,
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
@@ -78,7 +78,7 @@ BCCrafTec.Recipes = {
 -- }}}
 --]] 
 
-BCCrafTec.makeTooltip = function(recipe) -- {{{
+BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 	local toolTip = ISToolTip:new();
 	toolTip:initialise();
 	--toolTip:setVisible(false);
@@ -88,26 +88,55 @@ BCCrafTec.makeTooltip = function(recipe) -- {{{
 	local desc = "Project: "..recipe.product.." <LINE> ";
 
 	local needsTools = false;
-	for k,tool in pairs(recipe.tools) do
+	for tools,_ in pairs(recipe.tools) do
 		if not needsTools then
 			needsTools = true;
 			desc = desc .. "Needs tools: <LINE> ";
 		end
+
+		local first = true;
 		desc = desc .. "  - ";
-		if string.match(recipe.tools, "/") then
-			local first = true;
-			for _,item in pairs(bcUtils.split(recipe.tools, "/")) do
-				local item = BCCrafTec.GetItemInstance(tool);
-				desc = desc .. item:getDisplayName();
-				if not first then
-					desc = desc .. " / ";
-					first = false;
-				end
-			end
-			desc = desc .. " <LINE> ";
-		else
+		for _,tool in pairs(bcUtils.split(tools, "/")) do
 			local item = BCCrafTec.GetItemInstance(tool);
-			desc = desc .. item:getDisplayName().." <LINE> ";
+			if not first then
+				desc = desc .. " / ";
+			end
+			local color = "";
+			if ISBuildMenu.countMaterial(player, tool) <= 0 then
+				color = " <RED> ";
+			else
+				color = " <GREEN> ";
+			end
+			desc = desc .. color..item:getDisplayName().." <RGB:1,1,1> ";
+			first = false;
+		end
+		desc = desc .. " <LINE> ";
+	end
+
+	if recipe.started then
+		-- Project on the ground
+		desc = desc .. "Needs parts: <LINE> ";
+		for ing,amount in pairs(recipe.ingredients) do
+			local color = "";
+			if (recipe.ingredientsAdded and recipe.ingredientsAdded[k] or 0) < amount then
+				color = " <RED> ";
+			else
+				color = " <GREEN> ";
+			end
+			desc = desc .. "  - "..color..getText(ing)..": "..((recipe.ingredientsAdded and recipe.ingredientsAdded[k]) or 0).."/"..amount.." <RGB:1,1,1>  <LINE> ";
+		end
+	else
+		-- Tooltip in build menu
+		desc = desc .. "Needs parts: <LINE> ";
+		for ing,amount in pairs(recipe.ingredients) do
+			local color = "";
+			local avail = ISBuildMenu.countMaterial(player, ing);
+			if (avail or 0) < amount then
+				color = " <RED> ";
+			else
+				color = " <GREEN> ";
+			end
+			desc = desc .. "  - "..color..getText(ing)..": "..(avail or 0).."/"..amount.." <RGB:1,1,1>  <LINE> ";
 		end
 	end
 
@@ -140,7 +169,7 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 		local md = object:getModData();
 		if md.recipe then
 			local o = context:addOption("Project: "..getText(md.recipe.product));
-			o.toolTip = BCCrafTec.makeTooltip(md.recipe);
+			o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
 		end
 	end
 
@@ -150,7 +179,7 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 
 	for _,recipe in pairs(BCCrafTec.Recipes) do
 		local o = subMenu:addOption(recipe.product, player, BCCrafTec.startCrafTec, recipe);
-		o.toolTip = BCCrafTec.makeTooltip(recipe);
+		o.toolTip = BCCrafTec.makeTooltip(player, recipe);
 	end
 end
 -- }}}
@@ -160,6 +189,7 @@ function BCCrafTec.GetItemInstance(type) -- {{{ taken from ISCraftingUI.lua
 	local item = BCCrafTec.ItemInstances[type];
 	if not item then
 		item = InventoryItemFactory.CreateItem(type);
+		bcUtils.pline(type..": "..bcUtils.dump(item));
 		if item then
 			BCCrafTec.ItemInstances[type] = item;
 			BCCrafTec.ItemInstances[item:getFullType()] = item;
