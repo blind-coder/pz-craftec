@@ -15,7 +15,7 @@ function BCCrafTecObject:create(x, y, z) -- {{{
 	self.recipe.started = true;
 	self.modData.recipe = self.recipe;
 	self.modData.recipe.ingredientsAdded = {};
-	for k,v in pairs(selfself.modData.recipe.ingredients) do
+	for k,v in pairs(self.modData.recipe.ingredients) do
 		self.modData.recipe.ingredientsAdded[k] = 0;
 	end
 end -- }}}

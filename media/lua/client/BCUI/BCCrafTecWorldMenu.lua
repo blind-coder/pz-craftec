@@ -1,18 +1,7 @@
 require "bcUtils_client"
-require "bcUtils_genericTA"
 
 if not BCCrafTec then BCCrafTec = {} end
-BCCrafTec.LogwallIsValid = function(self, square)
-	if not buildUtil.canBePlace(self, square) then
-		return false;
-	end
-	if buildUtil.stairIsBlockingPlacement(square, true, (self.nSprite==4 or self.nSprite==2)) then
-		return false;
-	end
-	return square:isFreeOrMidair(false);
-end
-
-BCCrafTec.Recipes = {
+BCCrafTec.Recipes = { -- {{{
 	{ product = getText("Logwall"),
 		ingredients = { ["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
@@ -38,6 +27,18 @@ BCCrafTec.Recipes = {
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	}
 };
+-- }}}
+
+BCCrafTec.LogwallIsValid = function(self, square) -- {{{
+	if not buildUtil.canBePlace(self, square) then
+		return false;
+	end
+	if buildUtil.stairIsBlockingPlacement(square, true, (self.nSprite==4 or self.nSprite==2)) then
+		return false;
+	end
+	return square:isFreeOrMidair(false);
+end
+-- }}}
 --[[
 -- {{{
 --To extend CrafTecs, just add to this object like this:
@@ -78,6 +79,83 @@ BCCrafTec.Recipes = {
 -- }}}
 --]] 
 
+BCCrafTec.startCrafTec = function(player, recipe) -- {{{
+	local crafTec = BCCrafTecObject:new(recipe);
+
+	crafTec.player = player;
+	crafTec.noNeedHammer = true; -- do not need a hammer to _start_, but maybe later to _build_
+	getCell():setDrag(crafTec, player);
+end
+-- }}}
+BCCrafTec.buildCrafTec = function(player, object) -- {{{
+	BCCrafTec.consumeMaterial(player, object);
+	local ta = BCCrafTecTA:new(player, object);
+	ISTimedActionQueue.add(ta);
+end
+-- }}}
+BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butchered from ISBuildUtil
+	player = getSpecificPlayer(player);
+  local inventory = player:getInventory();
+  local recipe = object:getModData()["recipe"];
+  local removed = false;
+	for part,amount in pairs(recipe.ingredients) do
+		if not recipe.ingredientsAdded then recipe.ingredientsAdded = {}; end
+		if not recipe.ingredientsAdded[part] then recipe.ingredientsAdded[part] = 0; end
+
+		amount = amount - recipe.ingredientsAdded[part];
+		local checkGround = 0;
+		-- if we didn't have all the required material inside our inventory,
+		-- it's because the missing materials are on the ground, we gonna check them
+		if inventory:getNumberOfItem(part) < amount then
+			checkGround = amount - inventory:getNumberOfItem(part);
+		end
+		for i=1,(amount - checkGround) do
+			inventory:Remove(inventory:FindAndReturn(part));
+			recipe.ingredientsAdded[part] = recipe.ingredientsAdded[part] + 1;
+		end
+
+		-- for each missing material in inventory
+		if checkGround > 0 then
+			-- check a 3x3 square around the player
+			for x=math.floor(player:getX())-1,math.floor(player:getX())+1 do
+				for y=math.floor(player:getY())-1,math.floor(player:getY())+1 do
+					local square = getCell():getGridSquare(x,y,math.floor(player:getZ()));
+					local wobs = square and square:getWorldObjects() or nil;
+
+					-- do we have the needed material on the ground ?
+					if wobs ~= nil then
+						local itemToRemove = {};
+						for m=0, wobs:size()-1 do
+							local o = wobs:get(m);
+							if instanceof(o, "IsoWorldInventoryObject") and o:getItem():getFullType() == part then
+								table.insert(itemToRemove, o);
+								checkGround = checkGround - 1;
+								if checkGround == 0 then
+									break;
+								end
+							end
+						end
+						for i,v in pairs(itemToRemove) do
+							square:transmitRemoveItemFromSquare(v);
+							square:removeWorldObject(v);
+							recipe.ingredientsAdded[part] = recipe.ingredientsAdded[part] + 1;
+							removed = true
+						end
+						if checkGround == 0 then
+							break;
+						end
+						itemToRemove = {};
+					end
+				end
+				if checkGround == 0 then
+					break;
+				end
+			end
+		end
+	end
+	if removed then ISInventoryPage.dirtyUI() end
+end
+--}}}
 BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 	local toolTip = ISToolTip:new();
 	toolTip:initialise();
@@ -118,25 +196,28 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 		desc = desc .. "Needs parts: <LINE> ";
 		for ing,amount in pairs(recipe.ingredients) do
 			local color = "";
-			if (recipe.ingredientsAdded and recipe.ingredientsAdded[k] or 0) < amount then
+			local item = BCCrafTec.GetItemInstance(ing);
+			local avail = ISBuildMenu.countMaterial(player, ing);
+			if avail + (recipe.ingredientsAdded and recipe.ingredientsAdded[ing] or 0) < amount then
 				color = " <RED> ";
 			else
 				color = " <GREEN> ";
 			end
-			desc = desc .. "  - "..color..getText(ing)..": "..((recipe.ingredientsAdded and recipe.ingredientsAdded[k]) or 0).."/"..amount.." <RGB:1,1,1>  <LINE> ";
+			desc = desc .. "  - "..color..item:getDisplayName()..": "..((recipe.ingredientsAdded and recipe.ingredientsAdded[ing]) or 0).."+"..avail.."/"..amount.." <RGB:1,1,1>  <LINE> ";
 		end
 	else
 		-- Tooltip in build menu
 		desc = desc .. "Needs parts: <LINE> ";
 		for ing,amount in pairs(recipe.ingredients) do
 			local color = "";
-			local avail = ISBuildMenu.countMaterial(player, ing);
+			local item = BCCrafTec.GetItemInstance(ing);
+			local avail = ISBuildMenu.countMaterial(player, ing); -- needs ISBuildMenu.materialOnGround above
 			if (avail or 0) < amount then
 				color = " <RED> ";
 			else
 				color = " <GREEN> ";
 			end
-			desc = desc .. "  - "..color..getText(ing)..": "..(avail or 0).."/"..amount.." <RGB:1,1,1>  <LINE> ";
+			desc = desc .. "  - "..color..item:getDisplayName()..": "..(avail or 0).."/"..amount.." <RGB:1,1,1>  <LINE> ";
 		end
 	end
 
@@ -156,19 +237,25 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 end
 -- }}}
 
-BCCrafTec.startCrafTec = function(player, recipe) -- {{{
-	local crafTec = BCCrafTecObject:new(recipe);
-
-	crafTec.player = player;
-	crafTec.noNeedHammer = true; -- do not need a hammer to _start_, but maybe later to _build_
-	getCell():setDrag(crafTec, player);
+BCCrafTec.GetItemInstance = function(type) -- {{{ taken from ISCraftingUI.lua
+	if not BCCrafTec.ItemInstances then BCCrafTec.ItemInstances = {} end
+	local item = BCCrafTec.ItemInstances[type];
+	if not item then
+		item = InventoryItemFactory.CreateItem(type);
+		if item then
+			BCCrafTec.ItemInstances[type] = item;
+			BCCrafTec.ItemInstances[item:getFullType()] = item;
+		end
+	end
+	return item;
 end
 -- }}}
+
 BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 	for _,object in pairs(worldObjects) do
 		local md = object:getModData();
 		if md.recipe then
-			local o = context:addOption("Project: "..getText(md.recipe.product));
+			local o = context:addOption("Continue "..getText(md.recipe.product), player, BCCrafTec.buildCrafTec, object);
 			o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
 		end
 	end
@@ -183,96 +270,4 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 	end
 end
 -- }}}
-
-function BCCrafTec.GetItemInstance(type) -- {{{ taken from ISCraftingUI.lua
-	if not BCCrafTec.ItemInstances then BCCrafTec.ItemInstances = {} end
-	local item = BCCrafTec.ItemInstances[type];
-	if not item then
-		item = InventoryItemFactory.CreateItem(type);
-		bcUtils.pline(type..": "..bcUtils.dump(item));
-		if item then
-			BCCrafTec.ItemInstances[type] = item;
-			BCCrafTec.ItemInstances[item:getFullType()] = item;
-		end
-	end
-	return item;
-end
--- }}}
---[[
-BCCrafTec.ISToolTipInvRender = ISToolTipInv.render;
-function ISToolTipInv:render() -- {{{
-	BCCrafTec.ISToolTipInvRender(self);
-	if self.item:getFullType() ~= "CrafTec.Project" then return end;
-
-	local th = self.height;
-	local r = 0;
-	local g = 0;
-
-	local text = {};
-
-	local modData = self.item:getModData()["CrafTec"];
-	table.insert(text, "Project: "..modData["product"]);
-
-	local needsTools = false;
-	for k,tool in pairs(modData["tools"]) do
-		if not needsTools then
-			needsTools = true;
-			table.insert(text, "Needs tools:");
-		end
-		local item = BCCrafTec.GetItemInstance(tool);
-		table.insert(text, "  "..item:getDisplayName());
-	end
-
-	for k,profession in pairs(modData["requirements"]) do
-		table.insert(text, "Profession: "..k);
-		for k,skill in pairs(profession) do
-			if k ~= "any" then
-				table.insert(text, "  Skill: "..k.." Level "..skill["level"]);
-			end
-			table.insert(text, "    Progress: "..skill["progress"].." / "..skill["time"]);
-		end
-	end
-
-	local y = th;
-	local w = self.width;
-
-	for _,t in ipairs(text) do
-		local textHeight = getTextManager():MeasureStringY(UIFont.Small, t);
-		local textWidth = getTextManager():MeasureStringX(UIFont.Small, t);
-		-- self:drawText(t, 3, y+3, 1.0, 1.0, 0.8, 1, UIFont.Small);
-		y = y + textHeight + 3;
-		w = math.max(w, textWidth);
-	end
-
-	self:drawRect(0, th, math.max(self.width, 6+w), 6+y-th,
-		self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b);
-	self:drawRectBorder(0, th, math.max(self.width, 6+w), 6+y-th,
-		self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b);
-
-	y = th;
-	for _,t in ipairs(text) do
-		local textHeight = getTextManager():MeasureStringY(UIFont.Small, t);
-		self:drawText(t, 3, y+3, 1.0, 1.0, 0.8, 1, UIFont.Small);
-		y = y + textHeight + 3;
-	end
-end
--- }}}
-
-BCCrafTec.ContinueCrafTec = function(player, item) -- {{{
-	player = getSpecificPlayer(player);
-	ISTimedActionQueue.add(BCCrafTec:new(player, item, 0));
-end
--- }}}
-BCCrafTec.hasAllIngredients = function(player, ingredients)--{{{
-	local inventory = getSpecificPlayer(player):getInventory();
-	for ing,cnt in pairs(ingredients) do
-		if cnt > inventory:getItemCount(ing) then
-			return false
-		end
-	end
-	return true;
-end
---}}}
---]]
-
 Events.OnFillWorldObjectContextMenu.Add(BCCrafTec.WorldMenu);
