@@ -4,7 +4,7 @@ if not BCCrafTec then BCCrafTec = {} end
 BCCrafTec.Recipes = { -- {{{
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
-		ingredients = {}, -- { ["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
+		ingredients = {["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {["Base.Hammer/Base.HammerStone"] = 1, ["Base.Saw"] = 1},
 		canBarricade = false,
@@ -18,7 +18,7 @@ BCCrafTec.Recipes = { -- {{{
 		tools = {},
 		canBarricade = false,
 		isValid = BCCrafTec.LogwallIsValid,
-		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
+		requirements = { Engineer = { Woodwork = { level = 2, time = 60, progress = 0 } } }
 	},
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
@@ -228,7 +228,7 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 		desc = desc .. "Profession: "..getText(k).." <LINE> ";
 		for k,skill in pairs(profession) do
 			if k ~= "any" then
-				desc = desc .. "  Skill: "..getText(k).." Level "..getText(skill["level"]).." <LINE> ";
+				desc = desc .. "  Skill: "..getText(k).." Level "..skill["level"].." <LINE> ";
 			end
 			desc = desc .. "    Progress: "..skill["progress"].." / "..skill["time"].." <LINE> ";
 		end
@@ -255,7 +255,8 @@ end
 -- }}}
 
 BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
-	for _,object in pairs(worldObjects) do
+print(bcUtils.dump(worldObjects));
+	for _,object in ipairs(worldObjects) do
 		local md = object:getModData();
 		if md.recipe then
 			local o = context:addOption("Continue "..getText(md.recipe.product), player, BCCrafTec.buildCrafTec, object);

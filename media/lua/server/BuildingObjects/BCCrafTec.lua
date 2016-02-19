@@ -3,20 +3,26 @@ require "bcUtils";
 
 BCCrafTecObject = ISBuildingObject:derive("BCCrafTecObject");
 
-function BCCrafTecObject:create(x, y, z) -- {{{
+function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
   local cell = getWorld():getCell();
   self.sq = cell:getGridSquare(x, y, z);
 
-  self.javaObject = IsoThumpable.new(cell, self.sq, 'carpentry_02_56', self.north, self);
+  self.javaObject = IsoThumpable.new(cell, self.sq, --[[sprite,]] 'media/textures/BC_scaffold', north, self);
   buildUtil.setInfo(self.javaObject, self);
   self.javaObject:setBreakSound("breakdoor");
 	self.sq:AddSpecialObject(self.javaObject);
 
   self.javaObject:transmitCompleteItemToServer();
 	self.modData = self.javaObject:getModData();
-	self.recipe.started = true;
-	self.modData.recipe = self.recipe;
+	self.modData.recipe = bcUtils.cloneTable(self.recipe);
+	-- self.recipe = nil;
+	self.modData.recipe.started = true;
 	self.modData.recipe.ingredientsAdded = {};
+	self.modData.recipe.x = x;
+	self.modData.recipe.y = y;
+	self.modData.recipe.z = z;
+	self.modData.recipe.north = north;
+	self.modData.recipe.sprite = sprite;
 	for k,v in pairs(self.modData.recipe.ingredients) do
 		self.modData.recipe.ingredientsAdded[k] = 0;
 	end
@@ -25,7 +31,7 @@ function BCCrafTecObject:tryBuild(x, y, z) -- {{{
 	-- We're just a 'plan' thingie with little to no effect on the world.
 	-- Just place the item...
 	-- What could possibly go wrong?
-	self:create(x, y, z);
+	self:create(x, y, z, self.north, self:getSprite());
 end
 -- }}}
 function BCCrafTecObject:new(recipe) -- {{{
@@ -33,30 +39,31 @@ function BCCrafTecObject:new(recipe) -- {{{
 	setmetatable(o, self);
 	self.__index = self;
 	o:init();
-	o.recipe = recipe;
+	o.isValidFunc = recipe.isValid;
+	o.recipe = bcUtils.cloneTable(recipe);
 	o.images = {};
-	o.images.westSprite   =  recipe.images.west;
-	o.images.northSprite  =  recipe.images.north;
-	o.images.southSprite  =  recipe.images.south;
-	o.images.eastSprite   =  recipe.images.east;
+	o.images.westSprite  = o.recipe.images.west;
+	o.images.northSprite = o.recipe.images.north;
+	o.images.southSprite = o.recipe.images.south;
+	o.images.eastSprite  = o.recipe.images.east;
 
 	o:setSprite(o.images.westSprite);
 	o:setNorthSprite(o.images.northSprite);
 	o:setEastSprite(o.images.eastSprite);
 	o:setSouthSprite(o.images.southSprite);
 
-	o.name = recipe.name;
-	o.canBarricade = recipe.canBarricade;
+	o.name = o.recipe.name;
+	o.canBarricade = o.recipe.canBarricade;
 
 	o.canPassThrough = true;
 	o.blockAllTheSquare = false;
-	o.dismantable = true;
+	o.dismantable = false;
 	o.noNeedHammer = true;
 	return o;
 end -- }}}
 function BCCrafTecObject:isValid(square) -- {{{
-	if self.recipe.isValid then
-		return self.recipe.isValid(self, square);
+	if self.isValidFunc then
+		return self.isValidFunc(self, square);
 	end
 	return true;
 end -- }}}
@@ -80,8 +87,7 @@ function ISWoodenWall.createFromCrafTec(crafTec, character)
 	o.sq = cell:getGridSquare(x, y, z);
 
 	o.player = character;
-	print(tostring(cell)..", "..tostring(o.sq)..", "..bcUtils.dump(crafTec:getSprite())..", "..tostring(crafTec.north)..", "..tostring(o));
-	o.javaObject = IsoThumpable.new(cell, o.sq, crafTec:getSprite(), crafTec.north, o);
+	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
 	buildUtil.setInfo(o.javaObject, o);
 	o.javaObject:setMaxHealth(o:getHealth());
 	o.javaObject:setBreakSound("breakdoor");
