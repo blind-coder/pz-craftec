@@ -15,7 +15,6 @@ function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
   self.javaObject:transmitCompleteItemToServer();
 	self.modData = self.javaObject:getModData();
 	self.modData.recipe = bcUtils.cloneTable(self.recipe);
-	-- self.recipe = nil;
 	self.modData.recipe.started = true;
 	self.modData.recipe.ingredientsAdded = {};
 	self.modData.recipe.x = x;
@@ -40,7 +39,7 @@ function BCCrafTecObject:new(recipe) -- {{{
 	self.__index = self;
 	o:init();
 	o.isValidFunc = recipe.isValid;
-	o.recipe = bcUtils.cloneTable(recipe);
+	o.recipe = recipe;
 	o.images = {};
 	o.images.westSprite  = o.recipe.images.west;
 	o.images.northSprite = o.recipe.images.north;
@@ -62,19 +61,13 @@ function BCCrafTecObject:new(recipe) -- {{{
 	return o;
 end -- }}}
 function BCCrafTecObject:isValid(square) -- {{{
-	if self.isValidFunc then
-		return self.isValidFunc(self, square);
+	if _G[self.recipe.resultClass].isValid then
+		return _G[self.recipe.resultClass].isValid(self, square);
 	end
 	return true;
 end -- }}}
 
---[[ Needed? -- {{{
-function BCCrafTecObject:render(x, y, z, square)
-	ISBuildingObject.render(self, x, y, z, square)
-end
---}}} ]]
-
-function ISWoodenWall.createFromCrafTec(crafTec, character)
+function ISWoodenWall.createFromCrafTec(crafTec, character)--{{{
 	local md = crafTec:getModData()["recipe"];
 
 	local o = ISWoodenWall:new(md.images.east, md.images.north, crafTec.corner);
@@ -99,3 +92,4 @@ function ISWoodenWall.createFromCrafTec(crafTec, character)
 		o.sq:getZone():setHaveConstruction(true);
 	end
 end
+--}}}

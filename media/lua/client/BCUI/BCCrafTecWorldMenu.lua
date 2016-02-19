@@ -1,15 +1,61 @@
 require "bcUtils_client"
 
 if not BCCrafTec then BCCrafTec = {} end
+--[[
+-- {{{
+--To extend CrafTecs, just add to this object like this:
+--Simple recipe:
+--local recipe = {};
+--recipe.product = "Makeshift chair";
+--recipe.resultClass = "ISSimpleFurniture";
+--recipe.images = { west = "chair_west", north = "chair_north", east = "chair_east", south = "chair_south" };
+--recipe.tools = {}; -- no tools
+--recipe.ingredients = { ["Base.Plank"] = 4, ["Base.RippedSheets"] = 4};
+--recipe.requirements = { any = { any = { level = 0, time = 60, progress = 0 } } };
+--table.insert(BCCrafTec.Recipes, recipe);
+--
+--More complex:
+--lecal recipe = {};
+--recipe.product = "Metal sheet wall";
+--recipe.resultClass = "MyModMetalSheetWall";
+--recipe.images = { west = "mymod_sheetwall_west", north = "mymod_sheetwall_north", east = nil, south = nil };
+--recipe.tools = { ["MyMod.Blowtorch"] = true, ["MyMod.Simplegloves/MyMod.Workinggloves"] = true }; -- require a blowtorch and either simple gloves or working gloves
+--recipe.ingredients = { ["MyMod.Metalsheet"] = 4, ["MyMod.Blowtorchfuel"] = 1 };
+--recipe.requirements = {
+--	Engineer = {
+--		Woodwork = { -- need an engineer with level 2 or better in woodwoorking for 600 minutes
+--			level = 2,
+--			time = 600,
+--			progress = 0
+--		}
+--	},
+--	Electrician = {
+--		Electricity = { -- need an electrician with level 4 in electricity for 300 minutes
+--			level = 4,
+--			time = 300,
+--			progress = 0
+--		}
+--	},
+--	any = {
+--		any = {
+--			level = 0, -- need anyone else for 120 minutes
+--			time = 120,
+--			progress = 0
+--		}
+--	}
+--};
+--table.insert(BCCrafTec.Recipes, recipe);
+-- }}}
+--]] 
+
 BCCrafTec.Recipes = { -- {{{
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
 		ingredients = {["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
-		tools = {["Base.Hammer/Base.HammerStone"] = 1, ["Base.Saw"] = 1},
+		tools = {["Base.Hammer/Base.HammerStone"] = true, ["Base.Saw"] = true},
 		canBarricade = false,
-		isValid = BCCrafTec.LogwallIsValid,
-		requirements = { any = { any = { level = 0, time = 10, progress = 0 } } }
+		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	},
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
@@ -17,8 +63,7 @@ BCCrafTec.Recipes = { -- {{{
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {},
 		canBarricade = false,
-		isValid = BCCrafTec.LogwallIsValid,
-		requirements = { Engineer = { Woodwork = { level = 2, time = 60, progress = 0 } } }
+		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	},
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
@@ -26,7 +71,6 @@ BCCrafTec.Recipes = { -- {{{
 		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 		tools = {},
 		canBarricade = false,
-		isValid = BCCrafTec.LogwallIsValid,
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	}
 };
@@ -42,46 +86,6 @@ BCCrafTec.LogwallIsValid = function(self, square) -- {{{
 	return square:isFreeOrMidair(false);
 end
 -- }}}
---[[
--- {{{
---To extend CrafTecs, just add to this object like this:
---Simple recipe:
---local product = "Base.AxeStone";
---local ingredients = { ["Base.TreeBranch"] = 1, ["Base.SharpedStone"] = 1, ["Base.RippedSheets"] = 1};
---local requirements = { any = { any = { level = 0, time = 60, progress = 0 } } };
---table.insert(BCCrafTec.Recipes, {product = product, ingredients = ingredients, requirements = requirements});
---
---More complex:
---local product = "Base.Generator";
---local ingredients = { ["Base.ElectronicsScrap"] = 25, ["Base.Plank"] = 5 };
---local tools = { "Base.Saw", "Base.Screwdriver" };
---local requirements = {
---	Engineer = {
---		Woodwork = {
---			level = 2,
---			time = 600,
---			progress = 0
---		}
---	},
---	Electrician = {
---		Electricity = {
---			level = 4,
---			time = 300,
---			progress = 0
---		}
---	},
---	any = {
---		any = {
---			level = 0,
---			time = 120,
---			progress = 0
---		}
---	}
---};
---table.insert(BCCrafTec.Recipes, {product = product, ingredients = ingredients, tools = tools, requirements = requirements});
--- }}}
---]] 
-
 BCCrafTec.startCrafTec = function(player, recipe) -- {{{
 	local crafTec = BCCrafTecObject:new(recipe);
 
