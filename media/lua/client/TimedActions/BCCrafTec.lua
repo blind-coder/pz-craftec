@@ -3,7 +3,7 @@ require "TimedActions/ISBaseTimedAction"
 --[[
 --{{{
 --ModData used:
---CrafTec: Object containing modData for CrafTecs with following attributes:
+--recipe: Object containing modData for CrafTecs with following attributes:
 --  product: contains getFullType (e.g.: "Base.Axe") of finished product
 --  tools: contains list of required tools (e.g.: { "Base.Saw", "Base.Screwdriver" })
 --  requirements: Object containing requirements of Skills and Professions, e.g.:
@@ -45,8 +45,6 @@ function BCCrafTecTA:update() -- {{{
 	for k,profession in pairs(modData.requirements) do
 		if (not canProgress) and ((k == prof) or (k == "any")) then
 			for k2,skill in pairs(profession) do
-				print("maxPartsProgress: "..maxPartsProgress);
-				print(skill.progress.." < "..skill.time.." / (100 / "..maxPartsProgress..") = "..(skill.time / (100 / maxPartsProgress)));
 				if (not canProgress)
 						and (skill.progress < skill.time)
 						and (skill.progress < skill.time / (100 / maxPartsProgress))
@@ -62,7 +60,7 @@ function BCCrafTecTA:update() -- {{{
 	end
 
 	local haveAllTools = true;
-	for tools,_ in pairs(modData.tools or {}) do
+	for _,tools in pairs(modData.tools or {}) do
 		local haveOneTool = false;
 		for _,tool in pairs(bcUtils.split(tools, "/")) do
 			if self.character:getInventory():FindAndReturn(tool) then
@@ -107,6 +105,7 @@ end
 -- }}}
 
 function BCCrafTecTA:start() -- {{{
+	--TODO: set job delta for any required tools
 	--self.object:setJobType('CrafTec '.. self.object:getModData()["CrafTec"]["product"]);
 	--self.object:setJobDelta(0.0);
 	self.startTimeHours = getGameTime():getTimeOfDay()
@@ -115,6 +114,7 @@ end
 -- }}}
 
 function BCCrafTecTA:stop() -- {{{
+	-- TODO: remove ourselves from the queue properly
 	if self.stopped then return end;
 	ISBaseTimedAction.stop(self);
 	self.stopped = true;
@@ -123,25 +123,35 @@ end
 -- }}}
 
 function BCCrafTecTA:perform() -- {{{
+	-- Sometimes the calculation of progress/time and calculateMaxTime are a bit off.
+	-- Forcing completion possibly early here for a smoother player experience.
+	self:checkIfFinished(true);
 	-- needed to remove from queue / start next.
 	ISBaseTimedAction.perform(self);
 end
 -- }}}
 
-function BCCrafTecTA:checkIfFinished() -- {{{
+function BCCrafTecTA:checkIfFinished(force) -- {{{
 	if not self.object then return end
 
 	local modData = self.object:getModData()["recipe"];
 
-	for k,skills in pairs(modData.requirements) do
-		for k2,s in pairs(skills) do
-			if s.progress < s.time then
-				return;
+	if not force then
+		for k,skills in pairs(modData.requirements) do
+			for k2,s in pairs(skills) do
+				if s.progress < s.time then
+					return;
+				end
 			end
 		end
 	end
 
 	local result = _G[modData.resultClass].createFromCrafTec(self.object, self.player);
+	local rmd = result.javaObject:getModData();
+	for part,amount in modData.ingredients do
+		rmd["need:"..part] = amount;
+	end
+
 	local sq = self.object:getSquare();
 	if isClient() then
 		sq:transmitRemoveItemFromSquare(self.object);

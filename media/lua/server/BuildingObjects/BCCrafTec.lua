@@ -91,5 +91,6 @@ function ISWoodenWall.createFromCrafTec(crafTec, character)--{{{
 	if o.sq:getZone() then
 		o.sq:getZone():setHaveConstruction(true);
 	end
+	return o;
 end
 --}}}
