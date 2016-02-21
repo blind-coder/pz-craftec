@@ -6,7 +6,7 @@ if not BCCrafTec then BCCrafTec = {} end
 --To extend CrafTecs, just add to this object like this:
 --Simple recipe:
 --local recipe = {};
---recipe.product = "Makeshift chair";
+--recipe.name = "Makeshift chair";
 --recipe.resultClass = "ISSimpleFurniture";
 --recipe.images = { west = "chair_west", north = "chair_north", east = "chair_east", south = "chair_south" };
 --recipe.tools = {}; -- no tools
@@ -16,7 +16,7 @@ if not BCCrafTec then BCCrafTec = {} end
 --
 --More complex:
 --lecal recipe = {};
---recipe.product = "Metal sheet wall";
+--recipe.name = "Metal sheet wall";
 --recipe.resultClass = "MyModMetalSheetWall";
 --recipe.images = { west = "mymod_sheetwall_west", north = "mymod_sheetwall_north", east = nil, south = nil };
 --recipe.tools = { "MyMod.Blowtorch", "MyMod.Simplegloves/MyMod.Workinggloves" }; -- require a blowtorch and either simple gloves or working gloves
@@ -48,7 +48,7 @@ if not BCCrafTec then BCCrafTec = {} end
 -- }}}
 --]] 
 
-BCCrafTec.Recipes = { -- {{{
+BCCrafTec.RecipesOld = { -- {{{
 	{ product = getText("Logwall"),
 		resultClass = "ISWoodenWall",
 		ingredients = {["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
@@ -74,8 +74,11 @@ BCCrafTec.Recipes = { -- {{{
 		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
 	}
 };
+-- }}}
+-- {{{
 BCCrafTec.Recipes = {
 	ContextMenu_Wooden_Crate = {
+		name = "Wooden crate",
 		resultClass = "ISWoodenContainer",
 		ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 2},
 		images = {west = "carpentry_01_16", north = "carpentry_01_17", east = "carpentry_01_18", south = nil }, -- TODO level sprites crate.canBeAlwaysPlaced = true;
@@ -87,6 +90,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Bar = {
 			isCategory = true,
 			ContextMenu_Bar_Element = {
+				name = "Bar element",
 				resultClass = "ISWoodenContainer",
 				ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4},
 				images ={west = "carpentry_02_19", north = "carpentry_02_21", east = "carpentry_02_23", south = "carpentry_02_17" }, -- level 3 images only
@@ -94,6 +98,7 @@ BCCrafTec.Recipes = {
 				requirements = { any = { Woodwork = { level = 7, time = 60 } } },
 			},
 			ContextMenu_Bar_Corner = {
+				name = "Bar corner",
 				resultClass = "ISWoodenContainer",
 				ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4},
 				images = {west = "carpentry_02_18", north = "carpentry_02_20", east = "carpentry_02_22", south = "carpentry_02_16"}, -- level 3 images only
@@ -102,6 +107,7 @@ BCCrafTec.Recipes = {
 			}
 		},
 		ContextMenu_Bed = {
+			name = "Bed",
 			resultClass = "ISDoubleTileFurniture", -- uh-oh
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4, ["Base.Mattress"] = 1},
 			images = {sprite1 = "carpentry_02_73", sprite2 = "carpentry_02_72", northSprite1 = "carpentry_02_74", northSprite2 = "carpentry_02_75"},
@@ -109,6 +115,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 4, time = 80 } } },
 		},
 		ContextMenu_Bookcase = {
+			name = "Bookcase",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4},
 			images = {west = "furniture_shelving_01_41", north = "furniture_shelving_01_40", east = "furniture_shelving_01_42", south = "furniture_shelving_01_43"}, -- TODO level images furniture.canBeAlwaysPlaced = true furniture.isContainer = true;furniture.containerType = "shelves" 
@@ -116,6 +123,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 5, time = 60 } } },
 		},
 		ContextMenu_SmallBookcase = {
+			name = "Small bookcase",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 3, ["Base.Nails"] = 3},
 			images = {west = "furniture_shelving_01_23", north = "furniture_shelving_01_19", east = nil, south = nil}, -- TODO level images furniture.canBeAlwaysPlaced = true furniture.isContainer = true;furniture.containerType = "shelves" 
@@ -123,6 +131,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 3, time = 30 } } },
 		},
 		ContextMenu_Shelves = {
+			name = "Shelf",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 1, ["Base.Nails"] = 2},
 			images = {west = "carpentry_02_68", north = "carpentry_02_69", east = nil, south = nil}, -- TODO level images furniture.isContainer = true furniture.needToBeAgainstWall = true furniture.blockAllTheSquare = false furniture.containerType = "shelves"
@@ -130,6 +139,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 2, time = 30 } } },
 		},
 		ContextMenu_DoubleShelves = {
+			name = "Two shelves",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4},
 			images = {west = "furniture_shelving_01_2", north = "furniture_shelving_01_1", east = nil, south = nil}, -- TODO level images furniture.isContainer = true furniture.needToBeAgainstWall = true furniture.blockAllTheSquare = false furniture.containerType = "shelves"
@@ -137,6 +147,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 4, time = 30 } } },
 		},
 		ContextMenu_Small_Table = {
+			name = "Small table",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4},
 			images = {west = "carpentry_01_62", north = nil, east = nil, south = nil}, -- TODO level images
@@ -144,6 +155,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 3, time = 60 } } },
 		},
 		ContextMenu_Large_Table = {
+			name = "Large table",
 			resultClass = "ISDoubleTileFurniture", -- TODO uh-oh
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4},
 			images = {sprite1 = "carpentry_01_33", sprite2 = "carpentry_01_32", northSprite1 = "carpentry_01_34", northSprite2 = "carpentry_01_35"}, -- TODO level images
@@ -151,6 +163,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 4, time = 90 } } },
 		},
 		ContextMenu_Table_with_Drawer = {
+			name = "Table with drawer",
 			resultClass = "ISWoodenContainer",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4, ["Base.Drawer"] = 1},
 			images = {west = "carpentry_02_8", north = "carpentry_02_10", east = "carpentry_02_11", south = "carpentry_02_9"}, -- TODO level images furniture.isContainer = true;
@@ -158,6 +171,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 5, time = 60 } } },
 		},
 		ContextMenu_Wooden_Chair = {
+			name = "Wooden chair",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4},
 			images = {west = "carpentry_01_45", north = "carpentry_01_44", east = "carpentry_01_47", south = "carpentry_01_46"}, -- TODO level images furniture.canPassThrough = true;
@@ -166,7 +180,9 @@ BCCrafTec.Recipes = {
 		}
 	},
 	Outdoor = {
+		isCategory = true,
 		ContextMenu_Lamp_on_Pillar = {
+			name = "Lamp on pillar",
 			resultClass = "ISLightSource",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Torch"] = 1, ["Base.Rope"] = 1}, -- TODO: lamp.fuel = Base.Battery lamp.baseItem = Torch lamp.radius = 10
 			images = {west = "carpentry_02_61", north = "carpentry_02_60", east = "carpentry_02_62", south = "carpentry_02_59"},
@@ -174,20 +190,23 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 4, time = 40 } } },
 		},
 		ContextMenu_Rain_Collector_Barrel = {
+			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
-			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.GarbageBag"] = 2}, -- TODO: RainCollectorBarrel.smallWaterMax
+			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 2}, -- TODO: RainCollectorBarrel.smallWaterMax
 			images = {west = "carpentry_02_54", north = "carpentry_02_54", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 60 } } },
 		},
 		ContextMenu_Rain_Collector_Barrel = {
+			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
-			ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.GarbageBag"] = 4}, -- TODO: RainCollectorBarrel.largeWaterMax
+			ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 4}, -- TODO: RainCollectorBarrel.largeWaterMax
 			images = {west = "carpentry_02_52", north = "carpentry_02_52", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 7, time = 90 } } },
 		},
 		ContextMenu_Sign = {
+			name = "Sign",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 3, ["Base.Nails"] = 3},
 			images = {west = "constructedobjects_signs_01_27", north = "constructedobjects_signs_01_11", east = nil, south = nil}, -- TODO furniture.blockAllTheSquare = false
@@ -198,34 +217,39 @@ BCCrafTec.Recipes = {
 	Fence = {
 		isCategory = true,
 		ContextMenu_Wooden_Stake = {
+			name = "Wooden stake",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.Plank"] = 1, ["Base.Nails"] = 2},
 			images = {west = "fencing_01_19", north = "fencing_01_19", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 5, time = 20 } } },
 		},
-		ContextMenu_Wooden_Fence {
+		ContextMenu_Wooden_Fence = {
+			name = "Wooden fence",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 3},
 			images = {west = "carpentry_02_48", north = "carpentry_02_49", east = nil, south = nil, corner = "carpentry_02_51"}, -- TODO corner?! WTF? -- TODO carpentry levels
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30 } } },
-		}
-		ContextMenu_Barbed_Fence {
+		},
+		ContextMenu_Barbed_Fence = {
+			name = "Barbed fence",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.BarbedWire"] = 1},
 			images = {west = "fencing_01_20", north = "fencing_01_20", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 5, time = 30 } } },
 		},
-		ContextMenu_Sand_Bag_Wall {
+		ContextMenu_Sand_Bag_Wall = {
+			name = "Sandbag wall",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.Sandbag"] = 3},
 			images = {west = "carpentry_02_12", north = "carpentry_02_13", east = "carpentry_02_14", south = "carpentry_02_15"},
 			tools = {},
 			requirements = { any = { any = { level = 0, time = 10 } } },
 		},
-		ContextMenu_Gravel_Bag_Wall {
+		ContextMenu_Gravel_Bag_Wall = {
+			name = "Gravelbag wall",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.Gravelbag"] = 3},
 			images = {west = "carpentry_02_12", north = "carpentry_02_13", east = "carpentry_02_14", south = "carpentry_02_15"},
@@ -236,6 +260,7 @@ BCCrafTec.Recipes = {
 	Floor = {
 		isCategory = true,
 		ContextMenu_Wooden_Floor = {
+			name = "Wooden floor",
 			resultClass = "ISWoodenFloor",
 			ingredients = {["Base.Log"] = 1, ["Base.Nails"] = 1},
 			images = { west = "carpentry_02_56", north = "carpentry_02_56", east = nil, south = nil }, -- TODO level sprites
@@ -246,6 +271,7 @@ BCCrafTec.Recipes = {
 	Stairs = {
 		isCategory = true,
 		ContextMenu_Stairs = {
+			name = "Wooden stairs",
 			resultClass = "ISWoodenStairs",
 			ingredients = {["Base.Plank"] = 8, ["Base.Nails"] = 8},
 			images = { "fixtures_stairs_01_16", "fixtures_stairs_01_17", "fixtures_stairs_01_18", "fixtures_stairs_01_24", "fixtures_stairs_01_25", "fixtures_stairs_01_26", "fixtures_stairs_01_22", "fixtures_stairs_01_23" }, -- TODO uh-oh stairs.isThumpable = false;
@@ -257,21 +283,24 @@ BCCrafTec.Recipes = {
 		isCategory = true,
 		ContextMenu_Log_Wall = {
 			isCategory = true,
-			"With sheets" = {
+			ContextMenu_Log_Wall_With_Sheets = {
+				name = "Logwall",
 				resultClass = "ISWoodenWall",
 				ingredients = {["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
 				images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 				tools = {},
 				requirements = { any = { any = { level = 0, time = 30, progress = 0 } } }
 			},
-			"With twine" = {
+			ContextMenu_Log_Wall_With_Twine = {
+				name = "Logwall",
 				resultClass = "ISWoodenWall",
 				ingredients = { ["Base.Log"] = 4, ["Base.Twine"] = 4},
 				images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
 				tools = {},
 				requirements = { any = { any = { level = 0, time = 30, progress = 0 } } }
 			},
-			"With rope" = {
+			ContextMenu_Log_Wall_With_Rope= {
+				name = "Logwall",
 				resultClass = "ISWoodenWall",
 				ingredients = { ["Base.Log"] = 4, ["Base.Rope"] = 2},
 				images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
@@ -280,6 +309,7 @@ BCCrafTec.Recipes = {
 			}
 		},
 		ContextMenu_Wooden_Door = {
+			name = "Wooden door",
 			resultClass = "ISWoodenDoor",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Hinge"] = 2, ["Base.Doorknob"] = 1},
 			images = { west = "carpentry_01_56", north = "carpentry_01_57", open = "carpentry_01_58", openNorth = "carpentry_01_59" }, -- TODO level sprites opensprites doorknob id
@@ -287,6 +317,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } }
 		},
 		ContextMenu_Door_Frame = {
+			name = "Door frame",
 			resultClass = "ISWoodenDoorFrame",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4 },
 			images = { west = "walls_exterior_wooden_01_34", north = "walls_exterior_wooden_01_35", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO level sprites corner doorFrame.modData["wallType"] = "doorframe" doorFrame.canBePlastered = true
@@ -294,6 +325,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 2, time = 60, progress = 0 } } }
 		},
 		ContextMenu_Windows_Frame = {
+			name = "Window frame",
 			resultClass = "ISWoodenWall",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4},
 			images = { west = "walls_exterior_wooden_01_32", north = "walls_exterior_wooden_01_33", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO frame.canBePlastered = true frame.hoppable = true frame.isThumpable = false level sprites corner
@@ -301,6 +333,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } }
 		},
 		ContextMenu_Wooden_Pillar = {
+			name = "Wooden pillar",
 			resultClass = "ISWoodenWall",
 			ingredients = { ["Base.Plank"] = 2, ["Base.Nails"] = 3},
 			images = { west = "walls_exterior_wooden_01_27", north = "walls_exterior_wooden_01_27", east = nil, south = nil},
@@ -308,6 +341,7 @@ BCCrafTec.Recipes = {
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } }
 		},
 		ContextMenu_Wooden_Wall = {
+			name = "Wooden wall",
 			resultClass = "ISWoodenWall",
 			ingredients = { ["Base.Plank"] = 3, ["Base.Nails"] = 3},
 			images = { west = "walls_exterior_wooden_01_24", north = "walls_exterior_wooden_01_25", east = nil, south = nil, corner = "walls_exterior_wooden_01_27" }, -- TODO level sprites TODO corner
@@ -409,10 +443,10 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 	local toolTip = ISToolTip:new();
 	toolTip:initialise();
 	--toolTip:setVisible(false);
-	toolTip:setName("Project: "..getText(recipe.product));
+	toolTip:setName("Project: "..getText(recipe.name));
 	toolTip:setTexture(recipe.images.east);
 
-	local desc = "Project: "..recipe.product.." <LINE> ";
+	local desc = "Project: "..recipe.name.." <LINE> ";
 
 	local needsTools = false;
 	for _,tools in pairs(recipe.tools) do
@@ -494,29 +528,54 @@ BCCrafTec.GetItemInstance = function(type) -- {{{ taken from ISCraftingUI.lua
 		if item then
 			BCCrafTec.ItemInstances[type] = item;
 			BCCrafTec.ItemInstances[item:getFullType()] = item;
+		else
+			print("ERROR! Item not found: "..type);
 		end
 	end
 	return item;
 end
 -- }}}
 
+BCCrafTec.sanitizeRecipe = function(recipe)
+	-- do some sanity checks that modders / devs might forget
+	for pkey,pval in pairs(recipe.requirements) do
+		for skey,sval in pairs(pval) do
+			sval.progress = sval.progress or 0;
+		end
+	end
+end
+
 BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
-print(bcUtils.dump(worldObjects));
 	for _,object in ipairs(worldObjects) do
 		local md = object:getModData();
 		if md.recipe then
-			local o = context:addOption("Continue "..getText(md.recipe.product), player, BCCrafTec.buildCrafTec, object);
+			local o = context:addOption("Continue "..getText(md.recipe.name), player, BCCrafTec.buildCrafTec, object);
 			o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
 		end
 	end
 
 	local subMenu = ISContextMenu:getNew(context);
-	local buildOption = context:addOption("CrafTec", item, nil);
+	local buildOption = context:addOption("CrafTec");
 	context:addSubMenu(buildOption, subMenu);
 
-	for _,recipe in pairs(BCCrafTec.Recipes) do
-		local o = subMenu:addOption(recipe.product, player, BCCrafTec.startCrafTec, recipe);
-		o.toolTip = BCCrafTec.makeTooltip(player, recipe);
+	BCCrafTec.doMenuRecursive(subMenu, BCCrafTec.Recipes, player);
+end
+BCCrafTec.doMenuRecursive = function(menu, recipes, player) -- {{{
+	for name,recipe in pairs(recipes) do
+		if name ~= "isCategory" then
+
+			if recipe.isCategory then
+				local subMenu = ISContextMenu:getNew(menu);
+				local subMenuOption = menu:addOption(getText(name));
+				menu:addSubMenu(subMenuOption, subMenu);
+				BCCrafTec.doMenuRecursive(subMenu, recipe, player);
+			else
+				BCCrafTec.sanitizeRecipe(recipe);
+				local o = menu:addOption(name, player, BCCrafTec.startCrafTec, recipe);
+				o.toolTip = BCCrafTec.makeTooltip(player, recipe);
+			end
+		end
+
 	end
 end
 -- }}}
