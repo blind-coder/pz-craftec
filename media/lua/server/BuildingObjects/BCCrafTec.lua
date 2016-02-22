@@ -66,6 +66,28 @@ function BCCrafTecObject:isValid(square) -- {{{
 	end
 	return true;
 end -- }}}
+function BCCrafTecObject:copyData(dst) -- {{{
+	dst.name = o.name or dst.name;
+	for k,v in self.data do
+		if k ~= modData then
+			if type(v) == "table" then
+				dst[k] = bcUtils.cloneTable(v);
+			else
+				dst[k] = v;
+			end
+		end
+	end
+	
+	local dmd = dst.javaObject:getModData();
+	for k,v in self.data.modData do
+		if type(v) == "table" then
+			dmd[k] = bcUtils.cloneTable(v);
+		else
+			dmd[k] = v;
+		end
+	end
+end
+-- }}}
 
 function ISWoodenWall.createFromCrafTec(crafTec, character)--{{{
 	local md = crafTec:getModData()["recipe"];
@@ -81,6 +103,8 @@ function ISWoodenWall.createFromCrafTec(crafTec, character)--{{{
 
 	o.player = character;
 	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
+	crafTec:copyData(o);
+
 	buildUtil.setInfo(o.javaObject, o);
 	o.javaObject:setMaxHealth(o:getHealth());
 	o.javaObject:setBreakSound("breakdoor");
