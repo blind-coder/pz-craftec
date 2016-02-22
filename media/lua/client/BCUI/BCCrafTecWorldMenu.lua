@@ -535,7 +535,7 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 	toolTip:initialise();
 	--toolTip:setVisible(false);
 	toolTip:setName("Project: "..getText(recipe.name));
-	toolTip:setTexture(recipe.images.east);
+	toolTip:setTexture(recipe.images.west);
 
 	local desc = "Project: "..recipe.name.." <LINE> ";
 
