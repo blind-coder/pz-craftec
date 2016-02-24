@@ -1,4 +1,6 @@
 require "bcUtils_client"
+require "BuildingObjects/ISBuildingObject" -- needed here because RainCollectorBarrel doesn't require() it
+require "BuildingObjects/RainCollectorBarrel"
 
 if not BCCrafTec then BCCrafTec = {} end
 --[[
@@ -48,33 +50,6 @@ if not BCCrafTec then BCCrafTec = {} end
 -- }}}
 --]] 
 
-BCCrafTec.RecipesOld = { -- {{{
-	{ product = getText("Logwall"),
-		resultClass = "ISWoodenWall",
-		ingredients = {["Base.Log"] = 4, ["Base.RippedSheets"] = 4},
-		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
-		tools = {"Base.Hammer/Base.HammerStone", "Base.Saw"},
-		canBarricade = false,
-		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
-	},
-	{ product = getText("Logwall"),
-		resultClass = "ISWoodenWall",
-		ingredients = { ["Base.Log"] = 4, ["Base.Twine"] = 4},
-		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
-		tools = {},
-		canBarricade = false,
-		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
-	},
-	{ product = getText("Logwall"),
-		resultClass = "ISWoodenWall",
-		ingredients = { ["Base.Log"] = 4, ["Base.Rope"] = 2},
-		images = { west = "carpentry_02_80", north = "carpentry_02_81", east = nil, south = nil },
-		tools = {},
-		canBarricade = false,
-		requirements = { any = { any = { level = 0, time = 60, progress = 0 } } }
-	}
-};
--- }}}
 -- {{{
 BCCrafTec.Recipes = {
 	ContextMenu_Wooden_Crate = {
@@ -95,7 +70,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Bar = {
 			isCategory = true,
 			ContextMenu_Bar_Element = {
-				name = "Bar element",
+				name = "Bar",
 				resultClass = "ISWoodenContainer",
 				ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4},
 				images ={west = "carpentry_02_19", north = "carpentry_02_21", east = "carpentry_02_23", south = "carpentry_02_17" }, -- level 3 images only
@@ -106,14 +81,14 @@ BCCrafTec.Recipes = {
 				}
 			},
 			ContextMenu_Bar_Corner = {
-				name = "Bar corner",
+				name = "Bar",
 				resultClass = "ISWoodenContainer",
 				ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4},
 				images = {west = "carpentry_02_18", north = "carpentry_02_20", east = "carpentry_02_22", south = "carpentry_02_16"}, -- level 3 images only
 				tools = {"Base.Hammer/Base.HammerStone"},
 				data = {
 					canBeAlwaysPlaced = true,
-				}
+				},
 				requirements = { any = { Woodwork = { level = 7, time = 60 } } },
 			}
 		},
@@ -128,7 +103,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Bookcase = {
 			name = "Bookcase",
 			resultClass = "ISSimpleFurniture",
-			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4},
+			ingredients ={["Base.Plank"] = 5, ["Base.Nails"] = 4},
 			images = {west = "furniture_shelving_01_41", north = "furniture_shelving_01_40", east = "furniture_shelving_01_42", south = "furniture_shelving_01_43"}, -- TODO level images furniture.canBeAlwaysPlaced = true furniture.isContainer = true;furniture.containerType = "shelves" 
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 5, time = 60 } } },
@@ -228,6 +203,8 @@ BCCrafTec.Recipes = {
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 40 } } },
 			data = {
+				offsetX = 5,
+				offsetY = 5,
 				fuel = "Base.Battery",
 				baseItem = "Base.Torch",
 				radius = 10
@@ -241,8 +218,8 @@ BCCrafTec.Recipes = {
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 60 } } },
 			data = {
-				waterMax = RainCollectorBarrel.smallWaterMax
-			}
+				waterMax = (RainCollectorBarrel and RainCollectorBarrel.smallWaterMax) or 40 * 4 -- valid as of 34.09
+			},
 		},
 		ContextMenu_Rain_Collector_Barrel = {
 			name = "Rain collector",
@@ -252,7 +229,7 @@ BCCrafTec.Recipes = {
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 7, time = 90 } } },
 			data = {
-				waterMax = RainCollectorBarrel.largeWaterMax
+				waterMax = (RainCollectorBarrel and RainCollectorBarrel.largeWaterMax) or 100 * 4 -- valid as of 34.09
 			}
 		},
 		ContextMenu_Sign = {
@@ -329,7 +306,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Wooden_Floor = {
 			name = "Wooden floor",
 			resultClass = "ISWoodenFloor",
-			ingredients = {["Base.Log"] = 1, ["Base.Nails"] = 1},
+			ingredients = {["Base.Plank"] = 1, ["Base.Nails"] = 1},
 			images = { west = "carpentry_02_56", north = "carpentry_02_56", east = nil, south = nil }, -- TODO level sprites
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 1, time = 15, progress = 0 } } }
@@ -436,7 +413,10 @@ BCCrafTec.Recipes = {
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } },
 			data = {
-				canBarricade = false
+				canBarricade = false,
+				modData = {
+					wallType = "wall",
+				}
 			}
 		}
 	}
@@ -457,7 +437,9 @@ BCCrafTec.startCrafTec = function(player, recipe) -- {{{
 	local crafTec = BCCrafTecObject:new(recipe);
 
 	crafTec.player = player;
-	crafTec.noNeedHammer = true; -- do not need a hammer to _start_, but maybe later to _build_
+	crafTec.renderFloorHelper = recipe.data.renderFloorHelper or false;
+	crafTec.canBeAlwaysPlaced = recipe.data.canBeAlwaysPlaced or false;
+	crafTec.isValid = _G[recipe.resultClass].isValid;
 	getCell():setDrag(crafTec, player);
 end
 -- }}}
@@ -468,6 +450,7 @@ BCCrafTec.buildCrafTec = function(player, object) -- {{{
 end
 -- }}}
 BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butchered from ISBuildUtil
+	-- TODO store information about consumed material
 	player = getSpecificPlayer(player);
   local inventory = player:getInventory();
   local recipe = object:getModData()["recipe"];
@@ -533,7 +516,6 @@ end
 BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 	local toolTip = ISToolTip:new();
 	toolTip:initialise();
-	--toolTip:setVisible(false);
 	toolTip:setName("Project: "..getText(recipe.name));
 	toolTip:setTexture(recipe.images.west);
 
@@ -633,25 +615,35 @@ BCCrafTec.sanitizeRecipe = function(recipe) -- {{{
 		for skey,sval in pairs(pval) do
 			sval.progress = sval.progress or 0;
 		end
-		if not pval.tools then
-			pval.tools = {};
-		end
-		if not pval.data then
-			pval.data = {};
-		end
-		if not pval.data.modData then
-			pval.data.modData = {};
-		end
+	end
+	if not recipe.tools then
+		recipe.tools = {};
+	end
+	if not recipe.data then
+		recipe.data = {};
+	end
+	if not recipe.data.modData then
+		recipe.data.modData = {};
 	end
 end
 -- }}}
 
 BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
-	for _,object in ipairs(worldObjects) do
-		local md = object:getModData();
-		if md.recipe then
-			local o = context:addOption("Continue "..getText(md.recipe.name), player, BCCrafTec.buildCrafTec, object);
-			o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
+-- worldObjects passed here are b0rked. Work around it.
+	local firstObject;
+	for _,o in ipairs(worldObjects) do
+		if not firstObject then firstObject = o; end
+	end
+	worldObjects = firstObject:getSquare():getObjects();
+
+	for i=0,worldObjects:size()-1 do
+		local object = worldObjects:get(i);
+		if instanceof(object, "IsoThumpable") then
+			local md = object:getModData();
+			if md.recipe then
+				local o = context:addOption("Continue "..getText(md.recipe.name), player, BCCrafTec.buildCrafTec, object);
+				o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
+			end
 		end
 	end
 
@@ -661,6 +653,7 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 
 	BCCrafTec.doMenuRecursive(subMenu, BCCrafTec.Recipes, player);
 end
+-- }}}
 BCCrafTec.doMenuRecursive = function(menu, recipes, player) -- {{{
 	for name,recipe in pairs(recipes) do
 		if name ~= "isCategory" then

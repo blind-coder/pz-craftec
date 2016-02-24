@@ -1,35 +1,75 @@
 require "TimedActions/ISBaseTimedAction"
 
---[[
---{{{
---ModData used:
---recipe: Object containing modData for CrafTecs with following attributes:
---  product: contains getFullType (e.g.: "Base.Axe") of finished product
---  tools: contains list of required tools (e.g.: { "Base.Saw", "Base.Screwdriver" })
---  requirements: Object containing requirements of Skills and Professions, e.g.:
---    Elecrician:
---      any: {level: 0, time: 100, progress: 10} -- any electrician can do this and take 100 minutes and already 10 minutes done
---    Engineer:
---      Carpentry: {level: 2, time: 200} -- any Engineer with Carpentry at least level 2 can do this and take 200 minutes and no units done
---    any:
---      Foraging: {level: 4, time: 0} -- any player with Foraging at least level 4 can do this regardless of profession and be finished immediately
---    any:
---      any: {level: 0, time: 500} -- anyone can do this in 500 minutes
---      -- actually, any: {level: >0} doesn't make sense and will be ignored.
---
---As of Build 32.03 the following Perks are available:
---  Agility, Cooking, Melee, Crafting, Fitness, Strength, Blunt, Axe, Sprinting, Lightfoot, Nimble, Sneak, Woodwork, Aiming, Reloading, Farming, Survivalist, Fishing, Trapping, Passiv, Firearm, PlantScavenging, BluntParent, BladeParent, BluntGuard, BladeGuard, BluntMaintenance, BladeMaintenance, Doctor, Electricity
---
--- }}}
---]]
-
 BCCrafTecTA = ISBaseTimedAction:derive("BCCrafTecTA");
-function BCCrafTecTA:isValid() -- {{{
-	-- TODO
+
+local copyData = function(javaObject, dst) -- {{{
+  local md = javaObject:getModData();
+  dst.name = md.recipe.name or dst.name;
+
+  for k,v in pairs(md.recipe.data) do
+    if k ~= "modData" then
+      if type(v) == "table" then
+        dst[k] = bcUtils.cloneTable(v);
+      else
+        dst[k] = v;
+      end 
+    end
+  end
+end
+-- }}}
+local copyModData = function(javaObject, dst) -- {{{
+  local md = javaObject:getModData();
+  local dmd = dst.javaObject:getModData();
+  for part,amount in pairs(md.recipe.ingredients) do
+    dmd["need:"..part] = amount;
+  end
+  
+  for k,v in pairs(md.recipe.data.modData) do
+    if type(v) == "table" then
+      dmd[k] = bcUtils.cloneTable(v);
+    else 
+      dmd[k] = v;
+    end
+  end
+
+  dst:getSprite(); -- sets sprite, north, west, south and east values
+end
+-- }}}
+local createRealObjectFromCrafTec = function(crafTec, character)--{{{
+  local md = crafTec:getModData()["recipe"];
+
+	-- TODO ISBuildingObject:new is not standardised, need to handle each case seperately
+  local o = _G[md.resultClass].new(_G[md.resultClass], md.images.west, md.images.north);
+  o:setSprite(md.images.west);
+  o:setNorthSprite(md.images.north);
+  o:setEastSprite(md.images.east);
+  o:setSouthSprite(md.images.south);
+
+  local x = crafTec:getSquare():getX();
+  local y = crafTec:getSquare():getY();
+  local z = crafTec:getSquare():getZ();
+
+  local cell = getWorld():getCell();
+  o.sq = cell:getGridSquare(x, y, z);
+
+  o.player = character;
+  copyData(crafTec, o);
+	o.sprite = o:getSprite(); -- copyData sets nSprite (added in BCCrafTecObject:create), so this sets .sprite and the north, east, south and west options
+
+  local saveFunc = buildUtil.consumeMaterial;
+  buildUtil.consumeMaterial = function() end
+  o:create(x, y, z, o.north, o.sprite);
+  buildUtil.consumeMaterial = saveFunc;
+
+  copyModData(crafTec, o);
+  return o;
+end
+--}}}
+
+function BCCrafTecTA:isValid(square, north) -- {{{
 	return true;
 end
 -- }}}
-
 function BCCrafTecTA:update() -- {{{
 	if self.stopped then return end;
 	local modData = self.object:getModData()["recipe"];
@@ -50,7 +90,7 @@ function BCCrafTecTA:update() -- {{{
 						and (skill.progress < skill.time / (100 / maxPartsProgress))
 						and (
 							(k2 == "any")
-							or self.character:getPerkLevel(Perk.FromString(k2)) >= skill.level
+							or self.character:getPerkLevel(Perks.FromString(k2)) >= skill.level
 						)
 					then
 					canProgress = skill;
@@ -82,7 +122,7 @@ function BCCrafTecTA:update() -- {{{
 		if maxPartsProgress < 100 then
 			self.character:Say("I don't have the necessary parts.");
 		else
-			self.character:Say("I can't progress on this project.");
+			self.character:Say("I don't have the necessary skills.");
 		end
 		self:stop();
 		return;
@@ -103,7 +143,6 @@ function BCCrafTecTA:update() -- {{{
 	end
 end
 -- }}}
-
 function BCCrafTecTA:start() -- {{{
 	--TODO: set job delta for any required tools
 	--self.object:setJobType('CrafTec '.. self.object:getModData()["CrafTec"]["product"]);
@@ -112,7 +151,6 @@ function BCCrafTecTA:start() -- {{{
 	self.lastCheck = self.startTimeHours;
 end
 -- }}}
-
 function BCCrafTecTA:stop() -- {{{
 	-- TODO: remove ourselves from the queue properly
 	if self.stopped then return end;
@@ -121,7 +159,6 @@ function BCCrafTecTA:stop() -- {{{
 	self:checkIfFinished();
 end
 -- }}}
-
 function BCCrafTecTA:perform() -- {{{
 	-- Sometimes the calculation of progress/time and calculateMaxTime are a bit off.
 	-- Forcing completion possibly early here for a smoother player experience.
@@ -130,12 +167,12 @@ function BCCrafTecTA:perform() -- {{{
 	ISBaseTimedAction.perform(self);
 end
 -- }}}
-
 function BCCrafTecTA:checkIfFinished(force) -- {{{
 	if not self.object then return end
 
 	local modData = self.object:getModData()["recipe"];
 
+	-- TODO force might enable players to build things without parts/tools/skills!
 	if not force then
 		for k,skills in pairs(modData.requirements) do
 			for k2,s in pairs(skills) do
@@ -146,11 +183,7 @@ function BCCrafTecTA:checkIfFinished(force) -- {{{
 		end
 	end
 
-	local result = _G[modData.resultClass].createFromCrafTec(self.object, self.player);
-	local rmd = result.javaObject:getModData();
-	for part,amount in modData.ingredients do
-		rmd["need:"..part] = amount;
-	end
+	local result = createRealObjectFromCrafTec(self.object, self.player);
 
 	local sq = self.object:getSquare();
 	if isClient() then
@@ -164,7 +197,6 @@ function BCCrafTecTA:checkIfFinished(force) -- {{{
 	end
 end
 -- }}}
-
 function BCCrafTecTA:calculateMaxTime() -- {{{
 	local requirements = self.object:getModData()["recipe"]["requirements"];
 	local retVal = 1;
@@ -182,7 +214,6 @@ function BCCrafTecTA:calculateMaxTime() -- {{{
 	return retVal;
 end
 -- }}}
-
 function BCCrafTecTA:new(character, object) -- {{{
 	local modData = object:getModData();
 	if not modData.recipe then
