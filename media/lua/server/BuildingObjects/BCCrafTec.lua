@@ -94,6 +94,13 @@ function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
 	for k,v in pairs(self.modData.recipe.ingredients) do
 		self.modData.recipe.ingredientsAdded[k] = 0;
 	end
+
+	--[[
+	self.javaObject:setOverlaySprite(sprite, 1, 1, 1, 0.3, true);
+	local tint = self.javaObject:getSprite():getTintMod();
+	print("tint: "..tint:getR().." "..tint:getG().." "..tint:getB().." "..tostring(tint.a));
+	self.javaObject:getSprite():setTintMod(ColorInfo.new(tint:getR(), tint:getG(), tint:getB(), 0.3));
+	]]
 end -- }}}
 function BCCrafTecObject:tryBuild(x, y, z) -- {{{
 	-- We're just a 'plan' thingie with little to no effect on the world.
