@@ -95,6 +95,7 @@ function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
 		self.modData.recipe.ingredientsAdded[k] = 0;
 	end
 
+	self.javaObject:setOverlaySprite("media/textures/BC_scaffold.png", 1, 1, 1, 1, true);
 	--[[
 	self.javaObject:setOverlaySprite(sprite, 1, 1, 1, 0.3, true);
 	local tint = self.javaObject:getSprite():getTintMod();
