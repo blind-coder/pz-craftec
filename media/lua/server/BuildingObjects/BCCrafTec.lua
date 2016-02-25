@@ -120,12 +120,17 @@ function BCCrafTecObject:new(recipe) -- {{{
 	o.canPassThrough = true;
 	o.blockAllTheSquare = true;
 	o.dismantable = false;
+	o.renderFloorHelper = recipe.data.renderFloorHelper or false;
+	o.canBeAlwaysPlaced = recipe.data.canBeAlwaysPlaced or false;
+	o.needToBeAgainstWall = recipe.data.needToBeAgainstWall or false;
+	o.isValid = _G[recipe.resultClass].isValid;
 	o.noNeedHammer = true; -- do not need a hammer to _start_, but maybe later to _build_
 
 	o.getSquare2Pos = ISWoodenStairs.getSquare2Pos; -- dirty hack :-(
 	o.getSquare3Pos = ISWoodenStairs.getSquare3Pos;
 	return o;
 end -- }}}
+
 function BCCrafTecObject:render(x, y, z, square) -- {{{
 	local data = {};
 	data.x = x;

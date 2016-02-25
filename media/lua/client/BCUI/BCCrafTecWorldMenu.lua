@@ -93,7 +93,7 @@ BCCrafTec.Recipes = { -- {{{
 		},
 		ContextMenu_Bed = {
 			name = "Bed",
-			resultClass = "ISDoubleTileFurniture", -- uh-oh
+			resultClass = "ISDoubleTileFurniture",
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4, ["Base.Mattress"] = 1},
 			images = {west = "carpentry_02_73", sprite2 = "carpentry_02_72", north = "carpentry_02_74", northSprite2 = "carpentry_02_75"},
 			tools = {"Base.Hammer/Base.HammerStone"},
@@ -163,7 +163,7 @@ BCCrafTec.Recipes = { -- {{{
 		},
 		ContextMenu_Large_Table = {
 			name = "Large table",
-			resultClass = "ISDoubleTileFurniture", -- TODO uh-oh
+			resultClass = "ISDoubleTileFurniture",
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4},
 			images = {west = "carpentry_01_33", sprite2 = "carpentry_01_32", north = "carpentry_01_34", northSprite2 = "carpentry_01_35"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
@@ -432,11 +432,6 @@ BCCrafTec.startCrafTec = function(player, recipe) -- {{{
 	local crafTec = BCCrafTecObject:new(recipe);
 
 	crafTec.player = player;
-	-- TODO should this go into BCCrafTecObject:new?
-	crafTec.renderFloorHelper = recipe.data.renderFloorHelper or false;
-	crafTec.canBeAlwaysPlaced = recipe.data.canBeAlwaysPlaced or false;
-	crafTec.needToBeAgainstWall = recipe.data.needToBeAgainstWall or false;
-	crafTec.isValid = _G[recipe.resultClass].isValid;
 	getCell():setDrag(crafTec, player);
 end
 -- }}}
