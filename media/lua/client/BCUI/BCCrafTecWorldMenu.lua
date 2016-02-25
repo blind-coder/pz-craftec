@@ -50,8 +50,7 @@ if not BCCrafTec then BCCrafTec = {} end
 -- }}}
 --]] 
 
--- {{{
-BCCrafTec.Recipes = {
+BCCrafTec.Recipes = { -- {{{
 	ContextMenu_Wooden_Crate = {
 		name = "Wooden crate",
 		resultClass = "ISWoodenContainer",
@@ -96,7 +95,7 @@ BCCrafTec.Recipes = {
 			name = "Bed",
 			resultClass = "ISDoubleTileFurniture", -- uh-oh
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4, ["Base.Mattress"] = 1},
-			images = {sprite1 = "carpentry_02_73", sprite2 = "carpentry_02_72", northSprite1 = "carpentry_02_74", northSprite2 = "carpentry_02_75"},
+			images = {west = "carpentry_02_73", sprite2 = "carpentry_02_72", north = "carpentry_02_74", northSprite2 = "carpentry_02_75"},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 80 } } },
 		},
@@ -104,7 +103,7 @@ BCCrafTec.Recipes = {
 			name = "Bookcase",
 			resultClass = "ISSimpleFurniture",
 			ingredients ={["Base.Plank"] = 5, ["Base.Nails"] = 4},
-			images = {west = "furniture_shelving_01_41", north = "furniture_shelving_01_40", east = "furniture_shelving_01_42", south = "furniture_shelving_01_43"}, -- TODO level images furniture.canBeAlwaysPlaced = true furniture.isContainer = true;furniture.containerType = "shelves" 
+			images = {west = "furniture_shelving_01_41", north = "furniture_shelving_01_40", east = "furniture_shelving_01_42", south = "furniture_shelving_01_43"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 5, time = 60 } } },
 			data = {
@@ -117,7 +116,7 @@ BCCrafTec.Recipes = {
 			name = "Small bookcase",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 3, ["Base.Nails"] = 3},
-			images = {west = "furniture_shelving_01_23", north = "furniture_shelving_01_19", east = nil, south = nil}, -- TODO level images furniture.canBeAlwaysPlaced = true furniture.isContainer = true;furniture.containerType = "shelves" 
+			images = {west = "furniture_shelving_01_23", north = "furniture_shelving_01_19", east = nil, south = nil}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 3, time = 30 } } },
 			data = {
@@ -130,7 +129,7 @@ BCCrafTec.Recipes = {
 			name = "Shelf",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 1, ["Base.Nails"] = 2},
-			images = {west = "carpentry_02_68", north = "carpentry_02_69", east = nil, south = nil}, -- TODO level images furniture.isContainer = true furniture.needToBeAgainstWall = true furniture.blockAllTheSquare = false furniture.containerType = "shelves"
+			images = {west = "carpentry_02_68", north = "carpentry_02_69", east = nil, south = nil}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30 } } },
 			data = {
@@ -144,7 +143,7 @@ BCCrafTec.Recipes = {
 			name = "Two shelves",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4},
-			images = {west = "furniture_shelving_01_2", north = "furniture_shelving_01_1", east = nil, south = nil}, -- TODO level images furniture.isContainer = true furniture.needToBeAgainstWall = true furniture.blockAllTheSquare = false furniture.containerType = "shelves"
+			images = {west = "furniture_shelving_01_2", north = "furniture_shelving_01_1", east = nil, south = nil}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 30 } } },
 			data = {
@@ -166,7 +165,7 @@ BCCrafTec.Recipes = {
 			name = "Large table",
 			resultClass = "ISDoubleTileFurniture", -- TODO uh-oh
 			ingredients = {["Base.Plank"] = 6, ["Base.Nails"] = 4},
-			images = {sprite1 = "carpentry_01_33", sprite2 = "carpentry_01_32", northSprite1 = "carpentry_01_34", northSprite2 = "carpentry_01_35"}, -- TODO level images
+			images = {west = "carpentry_01_33", sprite2 = "carpentry_01_32", north = "carpentry_01_34", northSprite2 = "carpentry_01_35"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 90 } } },
 		},
@@ -174,7 +173,7 @@ BCCrafTec.Recipes = {
 			name = "Table with drawer",
 			resultClass = "ISWoodenContainer",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4, ["Base.Drawer"] = 1},
-			images = {west = "carpentry_02_8", north = "carpentry_02_10", east = "carpentry_02_11", south = "carpentry_02_9"}, -- TODO level images furniture.isContainer = true;
+			images = {west = "carpentry_02_8", north = "carpentry_02_10", east = "carpentry_02_11", south = "carpentry_02_9"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 5, time = 60 } } },
 			data = {
@@ -185,7 +184,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden chair",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 5, ["Base.Nails"] = 4},
-			images = {west = "carpentry_01_45", north = "carpentry_01_44", east = "carpentry_01_47", south = "carpentry_01_46"}, -- TODO level images furniture.canPassThrough = true;
+			images = {west = "carpentry_01_45", north = "carpentry_01_44", east = "carpentry_01_47", south = "carpentry_01_46"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30 } } },
 			data = {
@@ -198,7 +197,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Lamp_on_Pillar = {
 			name = "Lamp on pillar",
 			resultClass = "ISLightSource",
-			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Torch"] = 1, ["Base.Rope"] = 1}, -- TODO: lamp.fuel = Base.Battery lamp.baseItem = Torch lamp.radius = 10
+			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Torch"] = 1, ["Base.Rope"] = 1}, -- TODO use Base.Torch information from player inventory
 			images = {west = "carpentry_02_61", north = "carpentry_02_60", east = "carpentry_02_62", south = "carpentry_02_59"},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 40 } } },
@@ -213,7 +212,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Rain_Collector_Barrel = {
 			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
-			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 2}, -- TODO: RainCollectorBarrel.smallWaterMax
+			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 2}, -- FIXME should this use same amount of ingredients as the big one?
 			images = {west = "carpentry_02_54", north = "carpentry_02_54", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 4, time = 60 } } },
@@ -224,7 +223,7 @@ BCCrafTec.Recipes = {
 		ContextMenu_Rain_Collector_Barrel = {
 			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
-			ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 4}, -- TODO: RainCollectorBarrel.largeWaterMax
+			ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 4},
 			images = {west = "carpentry_02_52", north = "carpentry_02_52", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 7, time = 90 } } },
@@ -236,9 +235,12 @@ BCCrafTec.Recipes = {
 			name = "Sign",
 			resultClass = "ISSimpleFurniture",
 			ingredients = {["Base.Plank"] = 3, ["Base.Nails"] = 3},
-			images = {west = "constructedobjects_signs_01_27", north = "constructedobjects_signs_01_11", east = nil, south = nil}, -- TODO furniture.blockAllTheSquare = false
+			images = {west = "constructedobjects_signs_01_27", north = "constructedobjects_signs_01_11", east = nil, south = nil},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 1, time = 10 } } },
+			data = {
+				blockAllTheSquare = false
+			}
 		}
 	},
 	Fence = {
@@ -260,7 +262,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden fence",
 			resultClass = "ISWoodenWall",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 3},
-			images = {west = "carpentry_02_48", north = "carpentry_02_49", east = nil, south = nil, corner = "carpentry_02_51"}, -- TODO corner?! WTF? -- TODO carpentry levels
+			images = {west = "carpentry_02_48", north = "carpentry_02_49", east = nil, south = nil, corner = "carpentry_02_51"}, -- TODO level images
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30 } } },
 			data = {
@@ -307,7 +309,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden floor",
 			resultClass = "ISWoodenFloor",
 			ingredients = {["Base.Plank"] = 1, ["Base.Nails"] = 1},
-			images = { west = "carpentry_02_56", north = "carpentry_02_56", east = nil, south = nil }, -- TODO level sprites
+			images = { west = "carpentry_02_56", north = "carpentry_02_56", east = nil, south = nil }, -- TODO level sprite
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 1, time = 15, progress = 0 } } }
 		}
@@ -318,7 +320,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden stairs",
 			resultClass = "ISWoodenStairs",
 			ingredients = {["Base.Plank"] = 8, ["Base.Nails"] = 8},
-			images = { "fixtures_stairs_01_16", "fixtures_stairs_01_17", "fixtures_stairs_01_18", "fixtures_stairs_01_24", "fixtures_stairs_01_25", "fixtures_stairs_01_26", "fixtures_stairs_01_22", "fixtures_stairs_01_23" }, -- TODO uh-oh 
+			images = { west = "fixtures_stairs_01_16", sprite2 = "fixtures_stairs_01_17", sprite3 = "fixtures_stairs_01_18", north = "fixtures_stairs_01_24", northSprite2 = "fixtures_stairs_01_25", northSprite3 = "fixtures_stairs_01_26", pillar = "fixtures_stairs_01_22", pillarNorth = "fixtures_stairs_01_23" },
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 6, time = 240, progress = 0 } } }
 		}
@@ -365,7 +367,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden door",
 			resultClass = "ISWoodenDoor",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Hinge"] = 2, ["Base.Doorknob"] = 1},
-			images = { west = "carpentry_01_56", north = "carpentry_01_57", open = "carpentry_01_58", openNorth = "carpentry_01_59" }, -- TODO level sprites opensprites doorknob id
+			images = { west = "carpentry_01_56", north = "carpentry_01_57", open = "carpentry_01_58", openNorth = "carpentry_01_59" }, -- TODO level sprites doorknob id
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } },
 		},
@@ -373,18 +375,21 @@ BCCrafTec.Recipes = {
 			name = "Door frame",
 			resultClass = "ISWoodenDoorFrame",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4 },
-			images = { west = "walls_exterior_wooden_01_34", north = "walls_exterior_wooden_01_35", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO level sprites corner doorFrame.modData["wallType"] = "doorframe"
+			images = { west = "walls_exterior_wooden_01_34", north = "walls_exterior_wooden_01_35", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO level sprites corner
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 60, progress = 0 } } },
 			data = {
 				canBePlastered = true, -- TODO only if perklevel > 8
+				modData = {
+					wallType = "doorframe"
+				}
 			}
 		},
 		ContextMenu_Windows_Frame = {
 			name = "Window frame",
 			resultClass = "ISWoodenWall",
 			ingredients = { ["Base.Plank"] = 4, ["Base.Nails"] = 4},
-			images = { west = "walls_exterior_wooden_01_32", north = "walls_exterior_wooden_01_33", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO frame.canBePlastered = true frame.hoppable = true frame.isThumpable = false level sprites corner
+			images = { west = "walls_exterior_wooden_01_32", north = "walls_exterior_wooden_01_33", east = nil, south = nil, corner = "walls_exterior_wooden_01_27"}, -- TODO level sprites
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } },
 			data = {
@@ -409,7 +414,7 @@ BCCrafTec.Recipes = {
 			name = "Wooden wall",
 			resultClass = "ISWoodenWall",
 			ingredients = { ["Base.Plank"] = 3, ["Base.Nails"] = 3},
-			images = { west = "walls_exterior_wooden_01_24", north = "walls_exterior_wooden_01_25", east = nil, south = nil, corner = "walls_exterior_wooden_01_27" }, -- TODO level sprites TODO corner
+			images = { west = "walls_exterior_wooden_01_24", north = "walls_exterior_wooden_01_25", east = nil, south = nil, corner = "walls_exterior_wooden_01_27" }, -- TODO level sprites
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } },
 			data = {
@@ -423,22 +428,14 @@ BCCrafTec.Recipes = {
 };
 -- }}}
 
-BCCrafTec.LogwallIsValid = function(self, square) -- {{{
-	if not buildUtil.canBePlace(self, square) then
-		return false;
-	end
-	if buildUtil.stairIsBlockingPlacement(square, true, (self.nSprite==4 or self.nSprite==2)) then
-		return false;
-	end
-	return square:isFreeOrMidair(false);
-end
--- }}}
 BCCrafTec.startCrafTec = function(player, recipe) -- {{{
 	local crafTec = BCCrafTecObject:new(recipe);
 
 	crafTec.player = player;
+	-- TODO should this go into BCCrafTecObject:new?
 	crafTec.renderFloorHelper = recipe.data.renderFloorHelper or false;
 	crafTec.canBeAlwaysPlaced = recipe.data.canBeAlwaysPlaced or false;
+	crafTec.needToBeAgainstWall = recipe.data.needToBeAgainstWall or false;
 	crafTec.isValid = _G[recipe.resultClass].isValid;
 	getCell():setDrag(crafTec, player);
 end

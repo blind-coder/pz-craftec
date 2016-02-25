@@ -2,6 +2,38 @@ require "TimedActions/ISBaseTimedAction"
 
 BCCrafTecTA = ISBaseTimedAction:derive("BCCrafTecTA");
 
+BCCrafTecTA.worldCraftingFinished = function(object, character, retVal) -- {{{
+	if retVal.object then return end; -- might be overriden by another event
+
+	local md = object:getModData()["recipe"];
+	local o;
+
+	if md.resultClass == "ISLightSource" then
+		o = ISLightSource:new(md.images.west, md.images.north, character);
+	elseif md.resultClass == "ISSimpleFurniture" then
+		o = ISSimpleFurniture:new(md.name, md.images.west, md.images.north);
+	elseif md.resultClass == "ISWoodenContainer" then
+		o = ISWoodenContainer:new(md.images.west, md.images.north);
+	elseif md.resultClass == "ISWoodenDoorFrame" then
+		o = ISWoodenDoorFrame:new(md.images.west, md.images.north, md.images.corner);
+	elseif md.resultClass == "ISWoodenDoor" then
+		o = ISWoodenDoor:new(md.images.west, md.images.north, md.images.open, md.images.openNorth);
+	elseif md.resultClass == "ISWoodenFloor" then
+		o = ISWoodenFloor:new(md.images.west, md.images.north);
+	elseif md.resultClass == "ISWoodeWall" then
+		o = ISWoodenWall:new(md.images.west, md.images.north, md.images.corner);
+	elseif md.resultClass == "RainCollectorBarrel" then
+		o = RainCollectorBarrel:new(character, md.images.west, md.data.waterMax);
+	elseif md.resultClass == "ISWoodenStairs" then
+		o = ISWoodenStairs:new(md.images.sprite1, md.images.sprite2, md.images.sprite3, md.images.northSprite1, md.images.northSprite2, md.images.northSprite3, md.images.pillar, md.images.pillarNorth)
+	elseif md.resultClass == "ISDoubleTileFurniture" then
+		o = ISDoubleTileFurniture:new(md.name, md.images.sprite1, md.images.sprite2, md.images.northSprite1, md.images.northSprite2)
+	end
+
+	retVal.object = o;
+end
+-- }}}
+
 local copyData = function(javaObject, dst) -- {{{
   local md = javaObject:getModData();
   dst.name = md.recipe.name or dst.name;
@@ -37,9 +69,11 @@ end
 -- }}}
 local createRealObjectFromCrafTec = function(crafTec, character)--{{{
   local md = crafTec:getModData()["recipe"];
+	local retVal = {};
 
-	-- TODO ISBuildingObject:new is not standardised, need to handle each case seperately
-  local o = _G[md.resultClass].new(_G[md.resultClass], md.images.west, md.images.north);
+	triggerEvent("OnWorldCraftingFinished", crafTec, character, retVal);
+
+	o = retVal.object;
   o:setSprite(md.images.west);
   o:setNorthSprite(md.images.north);
   o:setEastSprite(md.images.east);
@@ -236,3 +270,6 @@ function BCCrafTecTA:new(character, object) -- {{{
 	return o;
 end
 -- }}}
+
+LuaEventManager.AddEvent("OnWorldCraftingFinished");
+Events.OnWorldCraftingFinished.Add(BCCrafTecTA.worldCraftingFinished);

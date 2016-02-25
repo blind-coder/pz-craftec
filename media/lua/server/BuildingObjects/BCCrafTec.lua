@@ -1,7 +1,9 @@
 require "BuildingObjects/ISBuildUtil";
 require "BuildingObjects/ISWoodenWall";
+require "BuildingObjects/ISDoubleTileFurniture";
 require "bcUtils";
 
+-- Hotfixes
 buildUtil.setInfo = function(javaObject, ISItem) -- {{{
 	if  javaObject.setCanPassThrough     then  javaObject:setCanPassThrough(ISItem.canPassThrough or false);        end
 	if  javaObject.setCanBarricade       then  javaObject:setCanBarricade(ISItem.canBarricade or false);            end
@@ -24,6 +26,47 @@ buildUtil.setInfo = function(javaObject, ISItem) -- {{{
 	if ISItem.canBeLockedByPadlock then
 		javaObject:setCanBeLockByPadlock(ISItem.canBeLockedByPadlock);
 	end
+end
+-- }}}
+function ISDoubleTileFurniture:setInfo(square, north, sprite) -- {{{
+	-- add furniture to our ground
+	local thumpable = IsoThumpable.new(getCell(), square, sprite, north, self);
+	-- name of the item for the tooltip
+	buildUtil.setInfo(thumpable, self);
+	-- the furniture have 200 base health + 100 per carpentry lvl
+	thumpable:setMaxHealth(self:getHealth());
+	-- the sound that will be played when our furniture will be broken
+	thumpable:setBreakSound("breakdoor");
+	square:AddSpecialObject(thumpable);
+	thumpable:transmitCompleteItemToServer();
+
+	self.javaObject = thumpable;
+end
+-- }}}
+function ISWoodenStairs:setInfo(square, level, north, sprite, luaobject) -- {{{
+	-- add stairs to our ground
+	local pillarSprite = self.pillar;
+	if north then
+		pillarSprite = self.pillarNorth;
+	end
+	local thumpable = square:AddStairs(north, level, sprite, pillarSprite, luaobject);
+	-- recalc the collide
+	square:RecalcAllWithNeighbours(true);
+	-- name of the item for the tooltip
+	thumpable:setName("Wooden Stairs");
+	-- we can't barricade/unbarricade the stairs
+	thumpable:setCanBarricade(false);
+	thumpable:setIsDismantable(true);
+	-- the stairs have 500 base health + 100 per carpentry lvl
+	thumpable:setMaxHealth(self:getHealth());
+	thumpable:setIsStairs(true);
+	thumpable:setIsThumpable(false)
+	-- the sound that will be played when our stairs will be broken
+	thumpable:setBreakSound("breakdoor");
+	thumpable:setModData(copyTable(self.modData))
+	thumpable:transmitCompleteItemToServer();
+
+	self.javaObject = thumpable;
 end
 -- }}}
 
@@ -64,7 +107,6 @@ function BCCrafTecObject:new(recipe) -- {{{
 	setmetatable(o, self);
 	self.__index = self;
 	o:init();
-	o.isValidFunc = recipe.isValid;
 	o.recipe = recipe;
 
 	o:setSprite(o.recipe.images.west);
@@ -79,180 +121,113 @@ function BCCrafTecObject:new(recipe) -- {{{
 	o.blockAllTheSquare = true;
 	o.dismantable = false;
 	o.noNeedHammer = true; -- do not need a hammer to _start_, but maybe later to _build_
+
+	o.getSquare2Pos = ISWoodenStairs.getSquare2Pos; -- dirty hack :-(
+	o.getSquare3Pos = ISWoodenStairs.getSquare3Pos;
 	return o;
 end -- }}}
-function BCCrafTecObject:isValid(square) -- {{{
-	return true;
-end -- }}}
+function BCCrafTecObject:render(x, y, z, square) -- {{{
+	local data = {};
+	data.x = x;
+	data.y = y;
+	data.z = z;
+	data.square = square;
+	data.done = false;
+	triggerEvent("WorldCraftingRender", self, data);
+	if data.done then return end
+
+	ISBuildingObject.render(self, x, y, z, square);
+	--local sprite = IsoSprite.new()
+	--sprite:LoadFramesNoDirPageSimple(self:getModData()["recipe"].sprite)
+	--sprite:RenderGhostTile(x, y, z)
+end
+-- }}}
+BCCrafTecObject.renderISDoubleFurniture = function(self, data) -- {{{
+	local md = self.recipe;
+	if md.resultClass ~= "ISDoubleTileFurniture" then return end;
+
+	for k,v in pairs(md.images) do
+		if not self[k] then
+			self[k] = v
+		end
+	end
+	data.done = true;
+	ISDoubleTileFurniture.render(self, data.x, data.y, data.z, data.square);
+	return;
+--[[
+	local sprite = IsoSprite.new()
+	sprite:LoadFramesNoDirPageSimple(md.sprite);
+	sprite:RenderGhostTile(x, y, z)
+
+	local spriteAName = md.images.northSprite2;
+	-- we get the x and y of our next tile (depend if we're placing the object north or not)
+	local xa, ya, za = ISDoubleTileFurniture.getSquare2Pos(self, square, md.north);
+
+	-- if we're not north we also change our sprite
+	if not md.north then
+		spriteAName = md.images.sprite2;
+	end
+	local squareA = getCell():getGridSquare(xa, ya, za);
+
+	-- render our second tile object
+	local spriteA = IsoSprite.new();
+	spriteA:LoadFramesNoDirPageSimple(spriteAName);
+	spriteA:RenderGhostTile(xa, ya, za);
+	]]
+end
+-- }}}
+BCCrafTecObject.renderISWoodenStairs = function(self, data) -- {{{
+	local md = self.recipe;
+	if md.resultClass ~= "ISWoodenStairs" then return end;
+
+	for k,v in pairs(md.images) do
+		if not self[k] then
+			self[k] = v
+		end
+	end
+	data.done = true;
+	ISWoodenStairs.render(self, data.x, data.y, data.z, data.square);
+	return;
 
 --[[
-local copyData = function(javaObject, dst) -- {{{
-	local md = javaObject:getModData();
-	dst.name = md.recipe.name or dst.name;
+	local sprite = IsoSprite.new()
+	sprite:LoadFramesNoDirPageSimple(md.sprite);
+	sprite:RenderGhostTile(x, y, z)
 
-	for k,v in pairs(md.recipe.data) do
-		if k ~= "modData" then
-			if type(v) == "table" then
-				dst[k] = bcUtils.cloneTable(v);
-			else
-				dst[k] = v;
-			end
-		end
+	local xa, ya = ISWoodenStairs.getSquare2Pos(self, square, md.north)
+	local xb, yb = ISWoodenStairs.getSquare3Pos(self, square, md.north)
+
+	-- name of our 2 sprites needed for the rest of the stairs
+	local spriteAName = md.images.northSprite2;
+	local spriteBName = md.images.northSprite3;
+
+	-- if we're not north we also change our sprite
+	if not md.north then
+		spriteAName = self.sprite2;
+		spriteBName = self.sprite3;
 	end
+	local squareA = getCell():getGridSquare(xa, ya, z);
+	if squareA == nil and getWorld():isValidSquare(xa, ya, z) then
+		squareA = IsoGridSquare.new(getCell(), nil, xa, ya, z);
+		getCell():ConnectNewSquare(squareA, false);
+	end
+	local squareB = getCell():getGridSquare(xb, yb, z);
+	if squareB == nil and getWorld():isValidSquare(xb, yb, z) then
+		squareB = IsoGridSquare.new(getCell(), nil, xb, yb, z);
+		getCell():ConnectNewSquare(squareB, false);
+	end
+
+	-- render our second tile object
+	local spriteA = IsoSprite.new();
+	spriteA:LoadFramesNoDirPageSimple(spriteAName);
+	spriteA:RenderGhostTile(xa, ya, z);
+	local spriteB = IsoSprite.new();
+	spriteB:LoadFramesNoDirPageSimple(spriteBName);
+	spriteB:RenderGhostTile(xb, yb, z);
+	]]
 end
 -- }}}
-local copyModData = function(javaObject, dst) -- {{{
-	local md = javaObject:getModData();
-	local dmd = dst.javaObject:getModData();
-	for part,amount in pairs(md.recipe.ingredients) do
-		dmd["need:"..part] = amount;
-	end
 
-	for k,v in pairs(md.recipe.data.modData) do
-		if type(v) == "table" then
-			dmd[k] = bcUtils.cloneTable(v);
-		else
-			dmd[k] = v;
-		end
-	end
-
-	dst:getSprite(); -- sets sprite, north, west, south and east values
-end
--- }}}
-function BCCrafTecObject.createFromCrafTec(crafTec, character)--{{{
-	local md = crafTec:getModData()["recipe"];
-
-	local o = ISWoodenContainer:new(md.images.west, md.images.north);
-	o:setEastSprite(md.images.east);
-	o:setSouthSprite(md.images.south);
-
-	local x = crafTec:getSquare():getX();
-	local y = crafTec:getSquare():getY();
-	local z = crafTec:getSquare():getZ();
-
-	local cell = getWorld():getCell();
-	o.sq = cell:getGridSquare(x, y, z);
-
-	o.player = character;
-	copyData(crafTec, o);
-
-	local saveFunc = buildUtil.consumeMaterial;
-	buildUtil.consumeMaterial = function() end
-	o:create(x, y, z, md.north, o.sprite);
-	buildUtil.consumeMaterial = saveFunc;
-
-	copyModData(crafTec, o);
-	return o;
-end
---}}}
-function ISWoodenWall.createFromCrafTec(crafTec, character)--{{{
-	local md = crafTec:getModData()["recipe"];
-
-	local o = ISWoodenWall:new(md.images.west, md.images.north, crafTec.corner);
-
-	local x = crafTec:getSquare():getX();
-	local y = crafTec:getSquare():getY();
-	local z = crafTec:getSquare():getZ();
-
-	local cell = getWorld():getCell();
-	o.sq = cell:getGridSquare(x, y, z);
-
-	o.player = character;
-	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
-	crafTec:copyData(o);
-	buildUtil.setInfo(o.javaObject, o);
-	o.javaObject:setMaxHealth(o:getHealth());
-	o.javaObject:setBreakSound("breakdoor");
-	buildUtil.addWoodXp(o);
-	o.sq:AddSpecialObject(o.javaObject);
-	o.sq:RecalcAllWithNeighbours(true);
-	o.javaObject:transmitCompleteItemToServer();
-	if o.sq:getZone() then
-		o.sq:getZone():setHaveConstruction(true);
-	end
-	return o;
-end
---}}}
-function ISSimpleFurniture.createFromCrafTec(crafTec, character)--{{{
-	local md = crafTec:getModData()["recipe"];
-
-	local o = ISSimpleFurniture:new(md.name, md.images.west, md.images.north);
-	o:setEastSprite(sprite.eastSprite);
-	o:setSouthSprite(sprite.southSprite);
-
-	local x = crafTec:getSquare():getX();
-	local y = crafTec:getSquare():getY();
-	local z = crafTec:getSquare():getZ();
-
-	local cell = getWorld():getCell();
-	o.sq = cell:getGridSquare(x, y, z);
-
-	o.player = character;
-	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
-	crafTec:copyData(o);
-	buildUtil.setInfo(o.javaObject, o);
-	o.javaObject:setMaxHealth(o:getHealth());
-	o.javaObject:setBreakSound("breakdoor");
-	buildUtil.addWoodXp(o);
-	o.sq:AddSpecialObject(o.javaObject);
-	o.javaObject:transmitCompleteItemToServer();
-	return o;
-end
---}}}
-function ISLightSource.createFromCrafTec(crafTec, character)--{{{
-	local md = crafTec:getModData()["recipe"];
-
-	local o = ISWoodenContainer:new(md.images.west, md.images.north, getSpecificPlayer(character));
-	o:setEastSprite(sprite.eastSprite);
-	o:setSouthSprite(sprite.southSprite);
-
-	local x = crafTec:getSquare():getX();
-	local y = crafTec:getSquare():getY();
-	local z = crafTec:getSquare():getZ();
-
-	local cell = getWorld():getCell();
-	o.sq = cell:getGridSquare(x, y, z);
-
-	o.player = character;
-	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
-	crafTec:copyData(o);
-	buildUtil.setInfo(o.javaObject, o);
-	local offX = o.offsetX;
-	local offY = o.ofysetY;
-	if o.west then offX = -offX; end
-	if o.north then offY = -offY; end
-	o.javaObject:createLightSource(o.radius, offX, offY, 0, 0, o.fuel, o.character:getInventory():FindAndReturn(self.baseItem), o.character); -- TODO
-
-	o.javaObject:setMaxHealth(o:getHealth());
-	o.javaObject:setBreakSound("breakdoor");
-	buildUtil.addWoodXp(o);
-	o.sq:AddSpecialObject(o.javaObject);
-	o.javaObject:transmitCompleteItemToServer();
-	return o;
-end
---}}}
-function RainCollectorBarrel.createFromCrafTec(crafTec, character)--{{{
-	local md = crafTec:getModData()["recipe"];
-
-	local o = RainCollectorBarrel:new(charactel, md.images.west, crafTec.data.waterMax);
-
-	local x = crafTec:getSquare():getX();
-	local y = crafTec:getSquare():getY();
-	local z = crafTec:getSquare():getZ();
-
-	local cell = getWorld():getCell();
-	o.sq = cell:getGridSquare(x, y, z);
-
-	o.player = character;
-	o.javaObject = IsoThumpable.new(cell, o.sq, md.sprite, md.north, o);
-	crafTec:copyData(o);
-	buildUtil.setInfo(o.javaObject, o);
-	o.javaObject:setMaxHealth(o:getHealth());
-	o.javaObject:setBreakSound("breakdoor");
-	buildUtil.addWoodXp(o);
-	o.sq:AddSpecialObject(o.javaObject);
-	o.javaObject:transmitCompleteItemToServer();
-	return o;
-end
---}}}
---]]
+LuaEventManager.AddEvent("WorldCraftingRender");
+Events.WorldCraftingRender.Add(BCCrafTecObject.renderISDoubleFurniture);
+Events.WorldCraftingRender.Add(BCCrafTecObject.renderISWoodenStairs);
