@@ -437,6 +437,7 @@ end
 -- }}}
 BCCrafTec.buildCrafTec = function(player, object) -- {{{
 	BCCrafTec.consumeMaterial(player, object);
+	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
 	local ta = BCCrafTecTA:new(player, object);
 	ISTimedActionQueue.add(ta);
 end
