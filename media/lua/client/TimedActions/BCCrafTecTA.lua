@@ -20,7 +20,7 @@ BCCrafTecTA.worldCraftingFinished = function(object, character, retVal) -- {{{
 		o = ISWoodenDoor:new(md.images.west, md.images.north, md.images.open, md.images.openNorth);
 	elseif md.resultClass == "ISWoodenFloor" then
 		o = ISWoodenFloor:new(md.images.west, md.images.north);
-	elseif md.resultClass == "ISWoodeWall" then
+	elseif md.resultClass == "ISWoodenWall" then
 		o = ISWoodenWall:new(md.images.west, md.images.north, md.images.corner);
 	elseif md.resultClass == "RainCollectorBarrel" then
 		o = RainCollectorBarrel:new(character, md.images.west, md.data.waterMax);
