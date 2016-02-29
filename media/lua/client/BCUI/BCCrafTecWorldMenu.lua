@@ -209,7 +209,7 @@ BCCrafTec.Recipes = { -- {{{
 				radius = 10
 			}
 		},
-		ContextMenu_Rain_Collector_Barrel = {
+		ContextMenu_Rain_Collector_Barrel_Small = {
 			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
 			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 2}, -- FIXME should this use same amount of ingredients as the big one?
@@ -220,7 +220,7 @@ BCCrafTec.Recipes = { -- {{{
 				waterMax = (RainCollectorBarrel and RainCollectorBarrel.smallWaterMax) or 40 * 4 -- valid as of 34.09
 			},
 		},
-		ContextMenu_Rain_Collector_Barrel = {
+		ContextMenu_Rain_Collector_Barrel_Large = {
 			name = "Rain collector",
 			resultClass = "RainCollectorBarrel",
 			ingredients = {["Base.Plank"] = 4, ["Base.Nails"] = 4, ["Base.Garbagebag"] = 4},
