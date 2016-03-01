@@ -1,7 +1,6 @@
 require "TimedActions/ISBaseTimedAction"
 
 BCCrafTecTA = ISBaseTimedAction:derive("BCCrafTecTA");
-
 BCCrafTecTA.worldCraftingFinished = function(object, character, retVal) -- {{{
 	if retVal.object then return end; -- might be overriden by another event
 
@@ -105,6 +104,7 @@ function BCCrafTecTA:isValid(square, north) -- {{{
 end
 -- }}}
 function BCCrafTecTA:update() -- {{{
+	-- TODO make more performant
 	if self.stopped then return end;
 	local modData = self.object:getModData()["recipe"];
 	local prof = self.character:getDescriptor():getProfession();
@@ -194,25 +194,20 @@ function BCCrafTecTA:stop() -- {{{
 end
 -- }}}
 function BCCrafTecTA:perform() -- {{{
-	-- Sometimes the calculation of progress/time and calculateMaxTime are a bit off.
-	-- Forcing completion possibly early here for a smoother player experience.
-	self:checkIfFinished(true);
+	self:checkIfFinished();
 	-- needed to remove from queue / start next.
 	ISBaseTimedAction.perform(self);
 end
 -- }}}
-function BCCrafTecTA:checkIfFinished(force) -- {{{
+function BCCrafTecTA:checkIfFinished() -- {{{
 	if not self.object then return end
 
 	local modData = self.object:getModData()["recipe"];
 
-	-- TODO force might enable players to build things without parts/tools/skills!
-	if not force then
-		for k,skills in pairs(modData.requirements) do
-			for k2,s in pairs(skills) do
-				if s.progress < s.time then
-					return;
-				end
+	for k,skills in pairs(modData.requirements) do
+		for k2,s in pairs(skills) do
+			if s.progress < s.time then
+				return;
 			end
 		end
 	end
@@ -273,3 +268,138 @@ end
 
 LuaEventManager.AddEvent("OnWorldCraftingFinished");
 Events.OnWorldCraftingFinished.Add(BCCrafTecTA.worldCraftingFinished);
+
+BCCrafTecDeconTA = ISBaseTimedAction:derive("BCCrafTecDeconTA");
+function BCCrafTecDeconTA:isValid(square, north) -- {{{
+	return true;
+end
+-- }}}
+function BCCrafTecDeconTA:update() -- {{{
+	-- TODO make more performant
+	if self.stopped then return end;
+	local modData = self.object:getModData()["recipe"];
+	local prof = self.character:getDescriptor():getProfession();
+
+	local sum = 0;
+	local canProgress = false;
+	for k,profession in pairs(modData.requirements) do
+		if (not canProgress) and ((k == prof) or (k == "any")) then
+			for k2,skill in pairs(profession) do
+				sum = skill.progress + sum;
+				if (not canProgress) and (skill.progress > 0) then
+					canProgress = skill;
+				end
+			end
+		end
+	end
+
+	if not canProgress and sum > 0 then
+		self.character:Say("I don't have the necessary skills.");
+		self:stop();
+		return;
+	end
+
+	local timeHours = getGameTime():getTimeOfDay();
+	if not self.lastCheck then self.lastCheck = timeHours; end
+	if timeHours < self.lastCheck then timeHours = timeHours + 24 end
+	local elapsedMins = (timeHours - self.lastCheck) * 60
+	local progress = math.floor(elapsedMins + 0.0001)
+	if progress > 0 then
+		self.lastCheck = timeHours;
+		canProgress.progress = math.max(0, canProgress.progress - progress);
+	end
+
+	if canProgress and canProgress.progress <= 0 then
+		self:checkIfFinished();
+	end
+end
+-- }}}
+function BCCrafTecDeconTA:start() -- {{{
+	self.startTimeHours = getGameTime():getTimeOfDay()
+	self.lastCheck = self.startTimeHours;
+end
+-- }}}
+function BCCrafTecDeconTA:stop() -- {{{
+	-- TODO: remove ourselves from the queue properly
+	if self.stopped then return end;
+	ISBaseTimedAction.stop(self);
+	self.stopped = true;
+	self:checkIfFinished();
+end
+-- }}}
+function BCCrafTecDeconTA:perform() -- {{{
+	self:checkIfFinished();
+	-- needed to remove from queue / start next.
+	ISBaseTimedAction.perform(self);
+end
+-- }}}
+function BCCrafTecDeconTA:checkIfFinished() -- {{{
+	if not self.object then return end
+
+	local modData = self.object:getModData()["recipe"];
+
+	for k,skills in pairs(modData.requirements) do
+		for k2,s in pairs(skills) do
+			if s.progress > 0 then
+				return;
+			end
+		end
+	end
+
+	local sq = self.object:getSquare();
+	for part,amount in pairs(modData.ingredientsAdded) do
+		for i=0,amount-1 do
+			sq:AddWorldInventoryItem(part, 0, 0, 0);
+		end
+	end
+
+	if isClient() then
+		sq:transmitRemoveItemFromSquare(self.object);
+	end
+	sq:RemoveTileObject(self.object);
+
+	self.object = nil;
+	if not self.stopped then
+		self:stop();
+	end
+end
+-- }}}
+function BCCrafTecDeconTA:calculateMaxTime() -- {{{
+	local requirements = self.object:getModData()["recipe"]["requirements"];
+	local retVal = 1;
+
+	for _,p in pairs(requirements) do
+		for _,v in pairs(p) do
+			if not v.progress then v.progress = 0; end
+			retVal = retVal + v.progress;
+		end
+	end
+
+	local f = 1 / getGameTime():getMinutesPerDay() / 2;
+	retVal = retVal / f; -- taken from ISReadABook, not sure why it's this way
+
+	return retVal;
+end
+-- }}}
+function BCCrafTecDeconTA:new(character, object) -- {{{
+	local modData = object:getModData();
+	if not modData.recipe then
+		getSpecificPlayer(character):Say("BUG CRAFTEC001: object has no modData.recipe");
+		return false;
+	end
+
+	local o = {}
+
+	setmetatable(o, self)
+	self.__index = self
+	o.character = getSpecificPlayer(character);
+	o.player = character;
+	o.object = object;
+	o.stopOnWalk = true;
+	o.stopOnRun = true;
+	o.stopped = false;
+
+	o.maxTime = o:calculateMaxTime();
+	return o;
+end
+-- }}}

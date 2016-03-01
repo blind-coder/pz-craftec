@@ -442,6 +442,12 @@ BCCrafTec.buildCrafTec = function(player, object) -- {{{
 	ISTimedActionQueue.add(ta);
 end
 -- }}}
+BCCrafTec.deconstructCrafTec = function(player, object) -- {{{
+	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
+	local ta = BCCrafTecDeconTA:new(player, object);
+	ISTimedActionQueue.add(ta);
+end
+-- }}}
 BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butchered from ISBuildUtil
 	-- TODO store information about consumed material
 	player = getSpecificPlayer(player);
@@ -635,6 +641,8 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 			local md = object:getModData();
 			if md.recipe then
 				local o = context:addOption("Continue "..getText(md.recipe.name), player, BCCrafTec.buildCrafTec, object);
+				o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
+				local o = context:addOption("Deconstruct "..getText(md.recipe.name), player, BCCrafTec.deconstructCrafTec, object);
 				o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
 			end
 		end
