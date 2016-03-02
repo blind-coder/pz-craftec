@@ -438,13 +438,13 @@ end
 BCCrafTec.buildCrafTec = function(player, object) -- {{{
 	BCCrafTec.consumeMaterial(player, object);
 	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
-	local ta = BCCrafTecTA:new(player, object);
+	local ta = BCCrafTecTA:new(player, object, false);
 	ISTimedActionQueue.add(ta);
 end
 -- }}}
 BCCrafTec.deconstructCrafTec = function(player, object) -- {{{
 	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
-	local ta = BCCrafTecDeconTA:new(player, object);
+	local ta = BCCrafTecTA:new(player, object, true);
 	ISTimedActionQueue.add(ta);
 end
 -- }}}
