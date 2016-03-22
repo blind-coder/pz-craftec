@@ -96,12 +96,6 @@ function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
 	end
 
 	self.javaObject:setOverlaySprite("media/textures/BC_scaffold.png", 1, 1, 1, 1, true);
-	--[[
-	self.javaObject:setOverlaySprite(sprite, 1, 1, 1, 0.3, true);
-	local tint = self.javaObject:getSprite():getTintMod();
-	print("tint: "..tint:getR().." "..tint:getG().." "..tint:getB().." "..tostring(tint.a));
-	self.javaObject:getSprite():setTintMod(ColorInfo.new(tint:getR(), tint:getG(), tint:getB(), 0.3));
-	]]
 end -- }}}
 function BCCrafTecObject:tryBuild(x, y, z) -- {{{
 	-- We're just a 'plan' thingie with little to no effect on the world.
@@ -169,26 +163,6 @@ BCCrafTecObject.renderISDoubleFurniture = function(self, data) -- {{{
 	data.done = true;
 	ISDoubleTileFurniture.render(self, data.x, data.y, data.z, data.square);
 	return;
---[[
-	local sprite = IsoSprite.new()
-	sprite:LoadFramesNoDirPageSimple(md.sprite);
-	sprite:RenderGhostTile(x, y, z)
-
-	local spriteAName = md.images.northSprite2;
-	-- we get the x and y of our next tile (depend if we're placing the object north or not)
-	local xa, ya, za = ISDoubleTileFurniture.getSquare2Pos(self, square, md.north);
-
-	-- if we're not north we also change our sprite
-	if not md.north then
-		spriteAName = md.images.sprite2;
-	end
-	local squareA = getCell():getGridSquare(xa, ya, za);
-
-	-- render our second tile object
-	local spriteA = IsoSprite.new();
-	spriteA:LoadFramesNoDirPageSimple(spriteAName);
-	spriteA:RenderGhostTile(xa, ya, za);
-	]]
 end
 -- }}}
 BCCrafTecObject.renderISWoodenStairs = function(self, data) -- {{{
@@ -204,43 +178,6 @@ BCCrafTecObject.renderISWoodenStairs = function(self, data) -- {{{
 	data.done = true;
 	ISWoodenStairs.render(self, data.x, data.y, data.z, data.square);
 	return;
-
---[[
-	local sprite = IsoSprite.new()
-	sprite:LoadFramesNoDirPageSimple(md.sprite);
-	sprite:RenderGhostTile(x, y, z)
-
-	local xa, ya = ISWoodenStairs.getSquare2Pos(self, square, md.north)
-	local xb, yb = ISWoodenStairs.getSquare3Pos(self, square, md.north)
-
-	-- name of our 2 sprites needed for the rest of the stairs
-	local spriteAName = md.images.northSprite2;
-	local spriteBName = md.images.northSprite3;
-
-	-- if we're not north we also change our sprite
-	if not md.north then
-		spriteAName = self.sprite2;
-		spriteBName = self.sprite3;
-	end
-	local squareA = getCell():getGridSquare(xa, ya, z);
-	if squareA == nil and getWorld():isValidSquare(xa, ya, z) then
-		squareA = IsoGridSquare.new(getCell(), nil, xa, ya, z);
-		getCell():ConnectNewSquare(squareA, false);
-	end
-	local squareB = getCell():getGridSquare(xb, yb, z);
-	if squareB == nil and getWorld():isValidSquare(xb, yb, z) then
-		squareB = IsoGridSquare.new(getCell(), nil, xb, yb, z);
-		getCell():ConnectNewSquare(squareB, false);
-	end
-
-	-- render our second tile object
-	local spriteA = IsoSprite.new();
-	spriteA:LoadFramesNoDirPageSimple(spriteAName);
-	spriteA:RenderGhostTile(xa, ya, z);
-	local spriteB = IsoSprite.new();
-	spriteB:LoadFramesNoDirPageSimple(spriteBName);
-	spriteB:RenderGhostTile(xb, yb, z);
-	]]
 end
 -- }}}
 

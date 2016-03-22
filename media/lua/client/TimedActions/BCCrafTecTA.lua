@@ -240,7 +240,7 @@ function BCCrafTecTA:calculateMaxTime() -- {{{
 	return retVal;
 end
 -- }}}
-function BCCrafTecTA:getImages()
+function BCCrafTecTA:getImages() -- {{{
 	-- duplicated in BCCrafTecWorldMenu.lua
 	local recipe = self.recipe;
 	local character = self.character;
@@ -260,6 +260,7 @@ function BCCrafTecTA:getImages()
 		return retVal;
 	end
 end
+-- }}}
 
 function BCCrafTecTA:new(character, object, isDeconstruction) -- {{{
 	local modData = object:getModData();

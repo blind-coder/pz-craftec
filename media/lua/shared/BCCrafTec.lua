@@ -1,7 +1,6 @@
 if not BCCrafTec then BCCrafTec = {} end
 
 BCCrafTec.getImages = function(player, recipe)
-	-- duplicated in BCCrafTecTA.lua
 	if recipe.images.any ~= nil then
 		return recipe.images.any;
 	end
