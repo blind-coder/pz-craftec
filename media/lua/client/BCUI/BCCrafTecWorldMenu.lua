@@ -678,8 +678,76 @@ BCCrafTec.deconstructCrafTec = function(player, object) -- {{{
 	ISTimedActionQueue.add(ta);
 end
 -- }}}
+BCCrafTec.storeItemInformation = function(recipe, item) -- {{{
+	-- Copout for now -- Build 34.13
+	local data = {};
+	data.A = item:getA();
+	data.R = item:getR();
+	data.G = item:getG();
+	data.B = item:getB();
+	data.Name = item:getName();
+	data.ReplaceOnUse = item:getReplaceOnUse();
+	data.ConditionMax = item:getConditionMax();
+	data.Texture = item:getTexture();
+	data.Texturerotten = item:getTexturerotten();
+	data.TextureCooked = item:getTextureCooked();
+	data.TextureBurnt = item:getTextureBurnt();
+	data.Uses = item:getUses();
+	data.Age = item:getAge();
+	data.LastAged = item:getLastAged();
+	data.CookingTime = item:getCookingTime();
+	data.MinutesToCook = item:getMinutesToCook();
+	data.MinutesToBurn = item:getMinutesToBurn();
+	data.OffAge = item:getOffAge();
+	data.OffAgeMax = item:getOffAgeMax();
+	data.Weight = item:getWeight();
+	data.ActualWeight = item:getActualWeight();
+	data.WorldTexture = item:getWorldTexture();
+	data.Description = item:getDescription();
+	data.Condition = item:getCondition();
+	data.OffString = item:getOffString();
+	data.CookedString = item:getCookedString();
+	data.UnCookedString = item:getUnCookedString();
+	data.BurntString = item:getBurntString();
+	data.Module = item:getModule();
+	data.BoredomChange = item:getBoredomChange();
+	data.UnhappyChange = item:getUnhappyChange();
+	data.StressChange = item:getStressChange();
+	data.ReplaceOnUseOn = item:getReplaceOnUseOn();
+	data.Count = item:getCount();
+	data.LightStrength = item:getLightStrength();
+	data.LightDistance = item:getLightDistance();
+	data.FatigueChange = item:getFatigueChange();
+	data.CurrentCondition = item:getCurrentCondition();
+	data.CustomMenuOption = item:getCustomMenuOption();
+	data.Tooltip = item:getTooltip();
+	data.DisplayCategory = item:getDisplayCategory();
+	data.HaveBeenRepaired = item:getHaveBeenRepaired();
+	data.ReplaceOnBreak = item:getReplaceOnBreak();
+	data.DisplayName = item:getDisplayName();
+	data.BreakSound = item:getBreakSound();
+	data.AlcoholPower = item:getAlcoholPower();
+	data.BandagePower = item:getBandagePower();
+	data.ReduceInfectionPower = item:getReduceInfectionPower();
+	data.ContentsWeight = item:getContentsWeight();
+	data.EquippedWeight = item:getEquippedWeight();
+	data.UnequippedWeight = item:getUnequippedWeight();
+	data.KeyId = item:getKeyId();
+	data.RemoteControlID = item:getRemoteControlID();
+	data.RemoteRange = item:getRemoteRange();
+	data.ExplosionSound = item:getExplosionSound();
+	data.CountDownSound = item:getCountDownSound();
+	data.ColorRed = item:getColorRed();
+	data.ColorGreen = item:getColorGreen();
+	data.ColorBlue = item:getColorBlue();
+	data.EvolvedRecipeName = item:getEvolvedRecipeName();
+
+	if not recipe.ingredientData then recipe.ingredientData = {} end
+	if not recipe.ingredientData[item:getFullType()] then recipe.ingredientData[item:getFullType()]= {} end
+	table.insert(recipe.ingredientData[item:getFullType()], data);
+end
+-- }}}
 BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butchered from ISBuildUtil
-	-- TODO store information about consumed material
 	player = getSpecificPlayer(player);
   local inventory = player:getInventory();
   local recipe = object:getModData()["recipe"];
@@ -696,7 +764,9 @@ BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butcher
 			checkGround = amount - inventory:getNumberOfItem(part);
 		end
 		for i=1,(amount - checkGround) do
-			inventory:Remove(inventory:FindAndReturn(part));
+			local item = inventory:FindAndReturn(part);
+			BCCrafTec.storeItemInformation(recipe, item);
+			inventory:Remove(item);
 			recipe.ingredientsAdded[part] = recipe.ingredientsAdded[part] + 1;
 		end
 
@@ -722,6 +792,7 @@ BCCrafTec.consumeMaterial = function(player, object) -- {{{ -- taken and butcher
 							end
 						end
 						for i,v in pairs(itemToRemove) do
+							BCCrafTec.storeItemInformation(recipe, v);
 							square:transmitRemoveItemFromSquare(v);
 							square:removeWorldObject(v);
 							recipe.ingredientsAdded[part] = recipe.ingredientsAdded[part] + 1;

@@ -30,71 +30,83 @@ BCCrafTecTA.worldCraftingFinished = function(object, recipe, character, retVal) 
 	end
 end
 -- }}}
-
+BCCrafTecTA.worldCraftingObjectCreated = function(object, recipe, character, object) -- {{{
+	-- Is this nice? No. Does it work? Probably.
+	if recipe.resultClass == "ISLightSource" then
+		object.javaObject:setLifeLeft(recipe.ingredientData["Base.Torch"][0].UsedDelta);
+		object.javaObject:setLifeDelta(recipe.ingredientData["Base.Torch"][0].UseDelta);
+		object.javaObject:setHaveFuel(recipe.ingredientData["Base.Torch"][0].UsedDelta > 0);
+	elseif recipe.resultClass == "ISWoodenDoor" then
+		object.javaObject:setKeyId(recipe.ingredientData["Base.Doorknob"][0].KeyId, false);
+	end
+end
+-- }}}
 local copyData = function(javaObject, dst) -- {{{
-  local md = javaObject:getModData();
-  dst.name = md.recipe.name or dst.name;
+	local md = javaObject:getModData();
+	dst.name = md.recipe.name or dst.name;
 
-  for k,v in pairs(md.recipe.data) do
-    if k ~= "modData" then
-      if type(v) == "table" then
-        dst[k] = bcUtils.cloneTable(v);
-      else
-        dst[k] = v;
-      end 
-    end
-  end
+	for k,v in pairs(md.recipe.data) do
+		if k ~= "modData" then
+			if type(v) == "table" then
+				dst[k] = bcUtils.cloneTable(v);
+			else
+				dst[k] = v;
+			end
+		end
+	end
 end
 -- }}}
 local copyModData = function(javaObject, dst) -- {{{
-  local md = javaObject:getModData();
-  local dmd = dst.javaObject:getModData();
-  for part,amount in pairs(md.recipe.ingredients) do
-    dmd["need:"..part] = amount;
-  end
-  
-  for k,v in pairs(md.recipe.data.modData) do
-    if type(v) == "table" then
-      dmd[k] = bcUtils.cloneTable(v);
-    else 
-      dmd[k] = v;
-    end
-  end
+local md = javaObject:getModData();
+local dmd = dst.javaObject:getModData();
+for part,amount in pairs(md.recipe.ingredients) do
+	dmd["need:"..part] = amount;
+end
 
-  dst:getSprite(); -- sets sprite, north, west, south and east values
+for k,v in pairs(md.recipe.data.modData) do
+	if type(v) == "table" then
+		dmd[k] = bcUtils.cloneTable(v);
+	else
+		dmd[k] = v;
+	end
+end
+
+dst:getSprite(); -- sets sprite, north, west, south and east values
 end
 -- }}}
 local createRealObjectFromCrafTec = function(crafTec, recipe, character)--{{{
-  local md = crafTec:getModData()["recipe"];
+local md = crafTec:getModData()["recipe"];
 	local retVal = {};
 
 	triggerEvent("OnWorldCraftingFinished", crafTec, recipe, character, retVal);
 
 	o = retVal.object;
 	local images = BCCrafTec.getImages(getSpecificPlayer(character), recipe);
-  o:setSprite(images.west);
-  o:setNorthSprite(images.north);
-  o:setEastSprite(images.east);
-  o:setSouthSprite(images.south);
+	o:setSprite(images.west);
+	o:setNorthSprite(images.north);
+	o:setEastSprite(images.east);
+	o:setSouthSprite(images.south);
 
-  local x = crafTec:getSquare():getX();
-  local y = crafTec:getSquare():getY();
-  local z = crafTec:getSquare():getZ();
+	local x = crafTec:getSquare():getX();
+	local y = crafTec:getSquare():getY();
+	local z = crafTec:getSquare():getZ();
 
-  local cell = getWorld():getCell();
-  o.sq = cell:getGridSquare(x, y, z);
+	local cell = getWorld():getCell();
+	o.sq = cell:getGridSquare(x, y, z);
 
-  o.player = character;
-  copyData(crafTec, o);
+	o.player = character;
+	copyData(crafTec, o);
 	o.sprite = o:getSprite(); -- copyData sets nSprite (added in BCCrafTecObject:create), so this sets .sprite and the north, east, south and west options
 
-  local saveFunc = buildUtil.consumeMaterial;
-  buildUtil.consumeMaterial = function() end
-  o:create(x, y, z, o.north, o.sprite);
-  buildUtil.consumeMaterial = saveFunc;
+	local saveFunc = buildUtil.consumeMaterial;
+	buildUtil.consumeMaterial = function() end
+	o:create(x, y, z, o.north, o.sprite);
+	buildUtil.consumeMaterial = saveFunc;
 
-  copyModData(crafTec, o);
-  return o;
+	triggerEvent("OnWorldCraftingObjectCreated", crafTec, recipe, character, o);
+
+	copyModData(crafTec, o);
+	return o;
 end
 --}}}
 
@@ -328,4 +340,6 @@ end
 -- }}}
 
 LuaEventManager.AddEvent("OnWorldCraftingFinished");
+LuaEventManager.AddEvent("OnWorldCraftingObjectCreated");
 Events.OnWorldCraftingFinished.Add(BCCrafTecTA.worldCraftingFinished);
+Events.OnWorldCraftingObjectCreated.Add(BCCrafTecTA.worldCraftingObjectCreated);
