@@ -1,36 +1,33 @@
 require "TimedActions/ISBaseTimedAction"
 
 BCCrafTecTA = ISBaseTimedAction:derive("BCCrafTecTA");
-BCCrafTecTA.worldCraftingFinished = function(object, character, retVal) -- {{{
+BCCrafTecTA.worldCraftingFinished = function(object, recipe, character, retVal) -- {{{
 	if retVal.object then return end; -- might be overriden by another event
 
 	local md = object:getModData()["recipe"];
-	local o;
-
+	local images = BCCrafTec.getImages(getSpecificPlayer(character), recipe);
 	if md.resultClass == "ISLightSource" then
-		o = ISLightSource:new(md.images.west, md.images.north, character);
+		retVal.object = ISLightSource:new(images.west, images.north, character);
 	elseif md.resultClass == "ISSimpleFurniture" then
-		o = ISSimpleFurniture:new(md.name, md.images.west, md.images.north);
+		retVal.object = ISSimpleFurniture:new(md.name, images.west, images.north);
 	elseif md.resultClass == "ISWoodenContainer" then
-		o = ISWoodenContainer:new(md.images.west, md.images.north);
+		retVal.object = ISWoodenContainer:new(images.west, images.north);
 	elseif md.resultClass == "ISWoodenDoorFrame" then
-		o = ISWoodenDoorFrame:new(md.images.west, md.images.north, md.images.corner);
+		retVal.object = ISWoodenDoorFrame:new(images.west, images.north, images.corner);
 	elseif md.resultClass == "ISWoodenDoor" then
-		o = ISWoodenDoor:new(md.images.west, md.images.north, md.images.open, md.images.openNorth);
+		retVal.object = ISWoodenDoor:new(images.west, images.north, images.open, images.openNorth);
 	elseif md.resultClass == "ISWoodenFloor" then
-		o = ISWoodenFloor:new(md.images.west, md.images.north);
+		retVal.object = ISWoodenFloor:new(images.west, images.north);
 	elseif md.resultClass == "ISWoodenWall" then
-		o = ISWoodenWall:new(md.images.west, md.images.north, md.images.corner);
+		retVal.object = ISWoodenWall:new(images.west, images.north, images.corner);
 	elseif md.resultClass == "RainCollectorBarrel" then
-		o = RainCollectorBarrel:new(character, md.images.west, md.data.waterMax);
-		o.javaObject:setName("Rain Collector Barrel");
+		retVal.object = RainCollectorBarrel:new(character, images.west, md.data.waterMax);
+		retVal.object.javaObject:setName("Rain Collector Barrel");
 	elseif md.resultClass == "ISWoodenStairs" then
-		o = ISWoodenStairs:new(md.images.sprite1, md.images.sprite2, md.images.sprite3, md.images.northSprite1, md.images.northSprite2, md.images.northSprite3, md.images.pillar, md.images.pillarNorth)
+		retVal.object = ISWoodenStairs:new(images.sprite1, images.sprite2, images.sprite3, images.northSprite1, images.northSprite2, images.northSprite3, images.pillar, images.pillarNorth)
 	elseif md.resultClass == "ISDoubleTileFurniture" then
-		o = ISDoubleTileFurniture:new(md.name, md.images.sprite1, md.images.sprite2, md.images.northSprite1, md.images.northSprite2)
+		retVal.object = ISDoubleTileFurniture:new(md.name, images.sprite1, images.sprite2, images.northSprite1, images.northSprite2)
 	end
-
-	retVal.object = o;
 end
 -- }}}
 
@@ -67,17 +64,18 @@ local copyModData = function(javaObject, dst) -- {{{
   dst:getSprite(); -- sets sprite, north, west, south and east values
 end
 -- }}}
-local createRealObjectFromCrafTec = function(crafTec, character)--{{{
+local createRealObjectFromCrafTec = function(crafTec, recipe, character)--{{{
   local md = crafTec:getModData()["recipe"];
 	local retVal = {};
 
-	triggerEvent("OnWorldCraftingFinished", crafTec, character, retVal);
+	triggerEvent("OnWorldCraftingFinished", crafTec, recipe, character, retVal);
 
 	o = retVal.object;
-  o:setSprite(md.images.west);
-  o:setNorthSprite(md.images.north);
-  o:setEastSprite(md.images.east);
-  o:setSouthSprite(md.images.south);
+	local images = BCCrafTec.getImages(getSpecificPlayer(character), recipe);
+  o:setSprite(images.west);
+  o:setNorthSprite(images.north);
+  o:setEastSprite(images.east);
+  o:setSouthSprite(images.south);
 
   local x = crafTec:getSquare():getX();
   local y = crafTec:getSquare():getY();
@@ -207,7 +205,7 @@ function BCCrafTecTA:checkIfFinished() -- {{{
 			end
 		end
 	else
-		createRealObjectFromCrafTec(self.object, self.player);
+		createRealObjectFromCrafTec(self.object, self.recipe, self.player);
 	end
 
 	local sq = self.object:getSquare();
@@ -242,6 +240,27 @@ function BCCrafTecTA:calculateMaxTime() -- {{{
 	return retVal;
 end
 -- }}}
+function BCCrafTecTA:getImages()
+	-- duplicated in BCCrafTecWorldMenu.lua
+	local recipe = self.recipe;
+	local character = self.character;
+	if recipe.images.any ~= nil then
+		return recipe.images.any;
+	end
+	for perk,levels in pairs(recipe.images) do
+		local retVal = {};
+		local perkLevel = character:getPerkLevel(Perks.FromString(perk));
+		local oldLevel = -1;
+		for level,images in pairs(levels) do
+			if level > oldLevel and perkLevel >= level then
+				retVal = images;
+				level = oldLevel;
+			end
+		end
+		return retVal;
+	end
+end
+
 function BCCrafTecTA:new(character, object, isDeconstruction) -- {{{
 	local modData = object:getModData();
 	if not modData.recipe then

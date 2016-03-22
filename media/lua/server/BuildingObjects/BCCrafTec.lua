@@ -117,10 +117,11 @@ function BCCrafTecObject:new(recipe) -- {{{
 	o:init();
 	o.recipe = recipe;
 
-	o:setSprite(o.recipe.images.west);
-	o:setNorthSprite(o.recipe.images.north);
-	o:setEastSprite(o.recipe.images.east);
-	o:setSouthSprite(o.recipe.images.south);
+	local images = BCCrafTec.getImages(getPlayer(), recipe);
+	o:setSprite(images.west);
+	o:setNorthSprite(images.north);
+	o:setEastSprite(images.east);
+	o:setSouthSprite(images.south);
 
 	o.name = o.recipe.name;
 
@@ -159,7 +160,8 @@ BCCrafTecObject.renderISDoubleFurniture = function(self, data) -- {{{
 	local md = self.recipe;
 	if md.resultClass ~= "ISDoubleTileFurniture" then return end;
 
-	for k,v in pairs(md.images) do
+	local images = BCCrafTec.getImages(getPlayer(), self.recipe);
+	for k,v in pairs(images) do
 		if not self[k] then
 			self[k] = v
 		end
@@ -193,7 +195,8 @@ BCCrafTecObject.renderISWoodenStairs = function(self, data) -- {{{
 	local md = self.recipe;
 	if md.resultClass ~= "ISWoodenStairs" then return end;
 
-	for k,v in pairs(md.images) do
+	local images = BCCrafTec.getImages(getPlayer(), self.recipe);
+	for k,v in pairs(images) do
 		if not self[k] then
 			self[k] = v
 		end
