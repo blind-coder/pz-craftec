@@ -3,3 +3,7 @@ poster=empty.png
 description=Long-term crafting projects
 id=bcCrafTecs
 require=bcUtils
+
+modversion=0.1.0
+pzversion=34.13
+versionurl=https://raw.githubusercontent.com/blind-coder/pz-craftec/master/mod.info
