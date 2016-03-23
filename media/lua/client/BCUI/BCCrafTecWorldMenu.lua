@@ -303,7 +303,7 @@ BCCrafTec.Recipes = { -- {{{
 		ContextMenu_Lamp_on_Pillar = {
 			name = "Lamp on pillar",
 			resultClass = "ISLightSource",
-			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Torch"] = 1, ["Base.Rope"] = 1}, -- TODO use Base.Torch information from player inventory
+			ingredients = {["Base.Plank"] = 2, ["Base.Nails"] = 4, ["Base.Torch"] = 1, ["Base.Rope"] = 1},
 			images = {
 				any = {
 					west = "carpentry_02_61", north = "carpentry_02_60", east = "carpentry_02_62", south = "carpentry_02_59"
@@ -557,7 +557,7 @@ BCCrafTec.Recipes = { -- {{{
 						west = "carpentry_01_56", north = "carpentry_01_57", open = "carpentry_01_58", openNorth = "carpentry_01_59"
 					}
 				}
-			}, -- TODO doorknob id
+			},
 			tools = {"Base.Hammer/Base.HammerStone"},
 			requirements = { any = { Woodwork = { level = 2, time = 30, progress = 0 } } },
 		},
@@ -681,6 +681,12 @@ end
 BCCrafTec.storeItemInformation = function(recipe, item) -- {{{
 	-- Copout for now -- Build 34.13
 	local data = {};
+
+	if instanceof(item, "DrainableComboItem") then
+		data.UsedDelta = item:getUsedDelta();
+		data.UseDelta = item:getUseDelta();
+	end
+
 	data.A = item:getA();
 	data.R = item:getR();
 	data.G = item:getG();

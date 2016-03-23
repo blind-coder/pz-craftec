@@ -7,6 +7,13 @@ BCCrafTecTA.worldCraftingFinished = function(object, recipe, character, retVal) 
 	local md = object:getModData()["recipe"];
 	local images = BCCrafTec.getImages(getSpecificPlayer(character), recipe);
 	if md.resultClass == "ISLightSource" then
+		-- FIXME this is really bad, but necessary for proper compatibility.
+		print(bcUtils.dump(recipe.ingredientData));
+		local it = getSpecificPlayer(character):getInventory():AddItem("Base.Torch");
+		it:setUsedDelta(recipe.ingredientData["Base.Torch"][1].UsedDelta);
+		it:setUseDelta(recipe.ingredientData["Base.Torch"][1].UseDelta);
+		-- FIXME End
+
 		retVal.object = ISLightSource:new(images.west, images.north, character);
 	elseif md.resultClass == "ISSimpleFurniture" then
 		retVal.object = ISSimpleFurniture:new(md.name, images.west, images.north);
@@ -32,12 +39,13 @@ end
 -- }}}
 BCCrafTecTA.worldCraftingObjectCreated = function(object, recipe, character, object) -- {{{
 	-- Is this nice? No. Does it work? Probably.
-	if recipe.resultClass == "ISLightSource" then
-		object.javaObject:setLifeLeft(recipe.ingredientData["Base.Torch"][0].UsedDelta);
-		object.javaObject:setLifeDelta(recipe.ingredientData["Base.Torch"][0].UseDelta);
-		object.javaObject:setHaveFuel(recipe.ingredientData["Base.Torch"][0].UsedDelta > 0);
-	elseif recipe.resultClass == "ISWoodenDoor" then
-		object.javaObject:setKeyId(recipe.ingredientData["Base.Doorknob"][0].KeyId, false);
+	-- if recipe.resultClass == "ISLightSource" then
+		-- object.javaObject:setLifeLeft(recipe.ingredientData["Base.Torch"][1].UsedDelta);
+		-- object.javaObject:setLifeDelta(recipe.ingredientData["Base.Torch"][1].UseDelta);
+		-- object.javaObject:setHaveFuel(recipe.ingredientData["Base.Torch"][1].UsedDelta > 0);
+	-- end
+	if recipe.resultClass == "ISWoodenDoor" then
+		object.javaObject:setKeyId(recipe.ingredientData["Base.Doorknob"][1].KeyId, false);
 	end
 end
 -- }}}
@@ -95,6 +103,7 @@ local md = crafTec:getModData()["recipe"];
 	o.sq = cell:getGridSquare(x, y, z);
 
 	o.player = character;
+	o.character = getSpecificPlayer(character);
 	copyData(crafTec, o);
 	o.sprite = o:getSprite(); -- copyData sets nSprite (added in BCCrafTecObject:create), so this sets .sprite and the north, east, south and west options
 
