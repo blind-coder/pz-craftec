@@ -8,7 +8,6 @@ BCCrafTecTA.worldCraftingFinished = function(object, recipe, character, retVal) 
 	local images = BCCrafTec.getImages(getSpecificPlayer(character), recipe);
 	if md.resultClass == "ISLightSource" then
 		-- FIXME this is really bad, but necessary for proper compatibility.
-		print(bcUtils.dump(recipe.ingredientData));
 		local it = getSpecificPlayer(character):getInventory():AddItem("Base.Torch");
 		it:setUsedDelta(recipe.ingredientData["Base.Torch"][1].UsedDelta);
 		it:setUseDelta(recipe.ingredientData["Base.Torch"][1].UseDelta);
