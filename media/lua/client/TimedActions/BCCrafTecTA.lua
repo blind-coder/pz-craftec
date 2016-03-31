@@ -28,7 +28,6 @@ BCCrafTecTA.worldCraftingFinished = function(object, recipe, character, retVal) 
 		retVal.object = ISWoodenWall:new(images.west, images.north, images.corner);
 	elseif md.resultClass == "RainCollectorBarrel" then
 		retVal.object = RainCollectorBarrel:new(character, images.west, md.data.waterMax);
-		retVal.object.javaObject:setName("Rain Collector Barrel");
 	elseif md.resultClass == "ISWoodenStairs" then
 		retVal.object = ISWoodenStairs:new(images.sprite1, images.sprite2, images.sprite3, images.northSprite1, images.northSprite2, images.northSprite3, images.pillar, images.pillarNorth)
 	elseif md.resultClass == "ISDoubleTileFurniture" then
@@ -45,6 +44,8 @@ BCCrafTecTA.worldCraftingObjectCreated = function(object, recipe, character, obj
 	-- end
 	if recipe.resultClass == "ISWoodenDoor" then
 		object.javaObject:setKeyId(recipe.ingredientData["Base.Doorknob"][1].KeyId, false);
+	elseif recipe.resultClass == "RainCollectorBarrel" then
+		object.javaObject:setName("Rain Collector Barrel");
 	end
 end
 -- }}}
