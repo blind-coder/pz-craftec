@@ -128,13 +128,19 @@ function BCCrafTecTA:isValid(square, north) -- {{{
 	end
 
 	if bcUtils.tableIsEmpty(self.canProgress) then
-		if self.maxPartsProgress < 100 then
-			self.character:Say("I don't have the necessary parts.");
-		else
-			self.character:Say("I don't have the necessary skills.");
+		if not self:checkIfFinished() then
+			if self.maxPartsProgress < 100 then
+				self.character:Say("I don't have the necessary parts.");
+			else
+				if self.isDeconstruction then
+					return true;
+				else
+					self.character:Say("I don't have the necessary skills.");
+				end
+			end
+			self:stop();
+			return false;
 		end
-		self:stop();
-		return false;
 	end
 
 	return true;
