@@ -209,6 +209,81 @@ function BCCrafTecTA:perform() -- {{{
 	ISBaseTimedAction.perform(self);
 end
 -- }}}
+function BCCrafTecTA:restoreItemInformation(item) -- {{{
+	if not self.recipe.ingredientData then self.recipe.ingredientData = {} end
+	if not self.recipe.ingredientData[item:getFullType()] then self.recipe.ingredientData[item:getFullType()]= {} end
+	local table = self.recipe.ingredientData[item:getFullType()];
+	local data = table[#table]
+	if tostring(data) == "nil" then return end;
+	-- table[#table] = nil;
+
+	if instanceof(item, "DrainableComboItem") then
+		item:setUsedDelta(data.UsedDelta);
+		item:setUseDelta(data.UseDelta);
+	end
+
+	if  data.A                     and  item.setA                     then  item:setA(data.A)                                        end;
+	if  data.R                     and  item.setR                     then  item:setR(data.R)                                        end;
+	if  data.G                     and  item.setG                     then  item:setG(data.G)                                        end;
+	if  data.B                     and  item.setB                     then  item:setB(data.B)                                        end;
+	if  data.Name                  and  item.setName                  then  item:setName(data.Name)                                  end;
+	if  data.ReplaceOnUse          and  item.setReplaceOnUse          then  item:setReplaceOnUse(data.ReplaceOnUse)                  end;
+	if  data.ConditionMax          and  item.setConditionMax          then  item:setConditionMax(data.ConditionMax)                  end;
+	if  data.Texture               and  item.setTexture               then  item:setTexture(data.Texture)                            end;
+	if  data.Texturerotten         and  item.setTexturerotten         then  item:setTexturerotten(data.Texturerotten)                end;
+	if  data.TextureCooked         and  item.setTextureCooked         then  item:setTextureCooked(data.TextureCooked)                end;
+	if  data.TextureBurnt          and  item.setTextureBurnt          then  item:setTextureBurnt(data.TextureBurnt)                  end;
+	if  data.Uses                  and  item.setUses                  then  item:setUses(data.Uses)                                  end;
+	if  data.Age                   and  item.setAge                   then  item:setAge(data.Age)                                    end;
+	if  data.LastAged              and  item.setLastAged              then  item:setLastAged(data.LastAged)                          end;
+	if  data.CookingTime           and  item.setCookingTime           then  item:setCookingTime(data.CookingTime)                    end;
+	if  data.MinutesToCook         and  item.setMinutesToCook         then  item:setMinutesToCook(data.MinutesToCook)                end;
+	if  data.MinutesToBurn         and  item.setMinutesToBurn         then  item:setMinutesToBurn(data.MinutesToBurn)                end;
+	if  data.OffAge                and  item.setOffAge                then  item:setOffAge(data.OffAge)                              end;
+	if  data.OffAgeMax             and  item.setOffAgeMax             then  item:setOffAgeMax(data.OffAgeMax)                        end;
+	if  data.Weight                and  item.setWeight                then  item:setWeight(data.Weight)                              end;
+	if  data.ActualWeight          and  item.setActualWeight          then  item:setActualWeight(data.ActualWeight)                  end;
+	if  data.WorldTexture          and  item.setWorldTexture          then  item:setWorldTexture(data.WorldTexture)                  end;
+	if  data.Description           and  item.setDescription           then  item:setDescription(data.Description)                    end;
+	if  data.Condition             and  item.setCondition             then  item:setCondition(data.Condition)                        end;
+	if  data.OffString             and  item.setOffString             then  item:setOffString(data.OffString)                        end;
+	if  data.CookedString          and  item.setCookedString          then  item:setCookedString(data.CookedString)                  end;
+	if  data.UnCookedString        and  item.setUnCookedString        then  item:setUnCookedString(data.UnCookedString)              end;
+	if  data.BurntString           and  item.setBurntString           then  item:setBurntString(data.BurntString)                    end;
+	if  data.Module                and  item.setModule                then  item:setModule(data.Module)                              end;
+	if  data.BoredomChange         and  item.setBoredomChange         then  item:setBoredomChange(data.BoredomChange)                end;
+	if  data.UnhappyChange         and  item.setUnhappyChange         then  item:setUnhappyChange(data.UnhappyChange)                end;
+	if  data.StressChange          and  item.setStressChange          then  item:setStressChange(data.StressChange)                  end;
+	if  data.ReplaceOnUseOn        and  item.setReplaceOnUseOn        then  item:setReplaceOnUseOn(data.ReplaceOnUseOn)              end;
+	if  data.Count                 and  item.setCount                 then  item:setCount(data.Count)                                end;
+	if  data.LightStrength         and  item.setLightStrength         then  item:setLightStrength(data.LightStrength)                end;
+	if  data.LightDistance         and  item.setLightDistance         then  item:setLightDistance(data.LightDistance)                end;
+	if  data.FatigueChange         and  item.setFatigueChange         then  item:setFatigueChange(data.FatigueChange)                end;
+	if  data.CurrentCondition      and  item.setCurrentCondition      then  item:setCurrentCondition(data.CurrentCondition)          end;
+	if  data.CustomMenuOption      and  item.setCustomMenuOption      then  item:setCustomMenuOption(data.CustomMenuOption)          end;
+	if  data.Tooltip               and  item.setTooltip               then  item:setTooltip(data.Tooltip)                            end;
+	if  data.DisplayCategory       and  item.setDisplayCategory       then  item:setDisplayCategory(data.DisplayCategory)            end;
+	if  data.HaveBeenRepaired      and  item.setHaveBeenRepaired      then  item:setHaveBeenRepaired(data.HaveBeenRepaired)          end;
+	if  data.ReplaceOnBreak        and  item.setReplaceOnBreak        then  item:setReplaceOnBreak(data.ReplaceOnBreak)              end;
+	if  data.DisplayName           and  item.setDisplayName           then  item:setDisplayName(data.DisplayName)                    end;
+	if  data.BreakSound            and  item.setBreakSound            then  item:setBreakSound(data.BreakSound)                      end;
+	if  data.AlcoholPower          and  item.setAlcoholPower          then  item:setAlcoholPower(data.AlcoholPower)                  end;
+	if  data.BandagePower          and  item.setBandagePower          then  item:setBandagePower(data.BandagePower)                  end;
+	if  data.ReduceInfectionPower  and  item.setReduceInfectionPower  then  item:setReduceInfectionPower(data.ReduceInfectionPower)  end;
+	if  data.ContentsWeight        and  item.setContentsWeight        then  item:setContentsWeight(data.ContentsWeight)              end;
+	if  data.EquippedWeight        and  item.setEquippedWeight        then  item:setEquippedWeight(data.EquippedWeight)              end;
+	if  data.UnequippedWeight      and  item.setUnequippedWeight      then  item:setUnequippedWeight(data.UnequippedWeight)          end;
+	if  data.KeyId                 and  item.setKeyId                 then  item:setKeyId(data.KeyId)                                end;
+	if  data.RemoteControlID       and  item.setRemoteControlID       then  item:setRemoteControlID(data.RemoteControlID)            end;
+	if  data.RemoteRange           and  item.setRemoteRange           then  item:setRemoteRange(data.RemoteRange)                    end;
+	if  data.ExplosionSound        and  item.setExplosionSound        then  item:setExplosionSound(data.ExplosionSound)              end;
+	if  data.CountDownSound        and  item.setCountDownSound        then  item:setCountDownSound(data.CountDownSound)              end;
+	if  data.ColorRed              and  item.setColorRed              then  item:setColorRed(data.ColorRed)                          end;
+	if  data.ColorGreen            and  item.setColorGreen            then  item:setColorGreen(data.ColorGreen)                      end;
+	if  data.ColorBlue             and  item.setColorBlue             then  item:setColorBlue(data.ColorBlue)                        end;
+	if  data.EvolvedRecipeName     and  item.setEvolvedRecipeName     then  item:setEvolvedRecipeName(data.EvolvedRecipeName)        end;
+end
+-- }}}
 function BCCrafTecTA:checkIfFinished() -- {{{
 	if not self.object then return end
 
@@ -228,9 +303,11 @@ function BCCrafTecTA:checkIfFinished() -- {{{
 		local sq = self.object:getSquare();
 		for part,amount in pairs(self.recipe.ingredientsAdded) do
 			for i=0,amount-1 do
-				sq:AddWorldInventoryItem(part, 0, 0, 0);
+				local newItem = sq:AddWorldInventoryItem(part, 0, 0, 0);
+				self:restoreItemInformation(newItem);
 			end
 		end
+		self.recipe.ingredientsAdded.amount = 0;
 	else
 		createRealObjectFromCrafTec(self.object, self.recipe, self.player);
 	end
