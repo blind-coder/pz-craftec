@@ -73,7 +73,7 @@ BCCrafTec.Recipes = { -- {{{
 		},
 		modData = {}
 	},
-	Indoor = {
+	ContextMenu_Indoor = {
 		isCategory = true,
 		ContextMenu_Bar = {
 			isCategory = true,
@@ -298,7 +298,7 @@ BCCrafTec.Recipes = { -- {{{
 			}
 		}
 	},
-	Outdoor = {
+	ContextMenu_Outdoor = {
 		isCategory = true,
 		ContextMenu_Lamp_on_Pillar = {
 			name = "Lamp on pillar",
@@ -365,7 +365,7 @@ BCCrafTec.Recipes = { -- {{{
 			}
 		}
 	},
-	Fence = {
+	ContextMenu_Fence = {
 		isCategory = true,
 		ContextMenu_Wooden_Stake = {
 			name = "Wooden stake",
@@ -453,7 +453,7 @@ BCCrafTec.Recipes = { -- {{{
 			}
 		}
 	},
-	Floor = {
+	ContextMenu_Floor = {
 		isCategory = true,
 		ContextMenu_Wooden_Floor = {
 			name = "Wooden floor",
@@ -476,7 +476,7 @@ BCCrafTec.Recipes = { -- {{{
 			requirements = { any = { Woodwork = { level = 1, time = 15, progress = 0 } } }
 		}
 	},
-	Stairs = {
+	ContextMenu_Stairs = {
 		isCategory = true,
 		ContextMenu_Stairs = {
 			name = "Wooden stairs",
@@ -491,7 +491,7 @@ BCCrafTec.Recipes = { -- {{{
 			requirements = { any = { Woodwork = { level = 6, time = 240, progress = 0 } } }
 		}
 	},
-	Walls = {
+	ContextMenu_Walls = {
 		isCategory = true,
 		ContextMenu_Log_Wall = {
 			isCategory = true,
@@ -525,7 +525,7 @@ BCCrafTec.Recipes = { -- {{{
 					canBarricade = false,
 				}
 			},
-			ContextMenu_Log_Wall_With_Rope= {
+			ContextMenu_Log_Wall_With_Rope = {
 				name = "Logwall",
 				resultClass = "ISWoodenWall",
 				ingredients = { ["Base.Log"] = 4, ["Base.Rope"] = 2},
@@ -751,6 +751,7 @@ BCCrafTec.storeItemInformation = function(recipe, item) -- {{{
 	if  item.getColorGreen            then  data.ColorGreen            =  item:getColorGreen()            end;
 	if  item.getColorBlue             then  data.ColorBlue             =  item:getColorBlue()             end;
 	if  item.getEvolvedRecipeName     then  data.EvolvedRecipeName     =  item:getEvolvedRecipeName()     end;
+
 	if not recipe.ingredientData then recipe.ingredientData = {} end
 	if not recipe.ingredientData[item:getFullType()] then recipe.ingredientData[item:getFullType()]= {} end
 	table.insert(recipe.ingredientData[item:getFullType()], data);
@@ -978,7 +979,7 @@ BCCrafTec.doMenuRecursive = function(menu, recipes, player) -- {{{
 				BCCrafTec.doMenuRecursive(subMenu, recipe, player);
 			else
 				BCCrafTec.sanitizeRecipe(recipe);
-				local o = menu:addOption(name, player, BCCrafTec.startCrafTec, recipe);
+				local o = menu:addOption(getText(name), player, BCCrafTec.startCrafTec, recipe);
 				o.toolTip = BCCrafTec.makeTooltip(player, recipe);
 			end
 		end
