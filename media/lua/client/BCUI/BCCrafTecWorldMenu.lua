@@ -682,6 +682,10 @@ BCCrafTec.storeItemInformation = function(recipe, item) -- {{{
 	-- Copout for now -- Build 34.13
 	local data = {};
 
+	if instanceof(item, "IsoWorldInventoryObject") then
+		item = item:getItem();
+	end
+
 	if instanceof(item, "DrainableComboItem") then
 		data.UsedDelta = item:getUsedDelta();
 		data.UseDelta = item:getUseDelta();
