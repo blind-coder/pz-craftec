@@ -104,6 +104,7 @@ local md = crafTec:getModData()["recipe"];
 
 	o.player = character;
 	o.character = getSpecificPlayer(character);
+	o.recipe = recipe;
 	copyData(crafTec, o);
 	o.sprite = o:getSprite(); -- copyData sets nSprite (added in BCCrafTecObject:create), so this sets .sprite and the north, east, south and west options
 
@@ -169,12 +170,20 @@ function BCCrafTecTA:update() -- {{{
 				end
 			else
 				if skill.progress < (skill.time / (100 / self.maxPartsProgress)) then
+					local addXp = 0;
 					if skill.progress + progress > skill.time then
+						addXp = skill.time - skill.progress;
 						progress = progress - (skill.time - skill.progress);
 						skill.progress = skill.time;
 					else
+						addXp = progress;
 						skill.progress = skill.progress + progress;
 						progress = 0;
+					end
+					if skill.name ~= "any" then
+						self.character:getXp():AddXP(Perks.FromString(skill.name), addXp / 10);
+					else
+						self.character:getXp():AddXP(Perks.Woodwork, addXp / 10);
 					end
 				end
 			end
@@ -412,12 +421,14 @@ function BCCrafTecTA:new(character, object, isDeconstruction) -- {{{
 	for profession,skills in pairs(o.recipe.requirements) do
 		if o.isDeconstruction then
 			for k,skill in pairs(skills) do
+				skill.name = k;
 				if skill.progress > 0 then
 					table.insert(o.canProgress, skill);
 				end
 			end
 		elseif (profession == prof) or (profession == "any") then
 			for k,skill in pairs(skills) do
+				skill.name = k;
 				if (skill.progress < skill.time) and (skill.progress < skill.time / (100 / o.maxPartsProgress))
 				and ((k == "any") or o.character:getPerkLevel(Perks.FromString(k)) >= skill.level) then
 					table.insert(o.canProgress, skill);

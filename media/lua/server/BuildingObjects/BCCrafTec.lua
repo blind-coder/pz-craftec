@@ -71,6 +71,14 @@ end
 -- }}}
 
 BCCrafTecObject = ISBuildingObject:derive("BCCrafTecObject");
+BCCrafTecObject.addWoodXpOriginal = buildUtil.addWoodXp;
+buildUtil.addWoodXp = function(ISItem)
+	if ISItem.recipe then
+		return;
+	end
+	BCCrafTecObject.addWoodXpOriginal(ISItem);
+end
+
 function BCCrafTecObject:create(x, y, z, north, sprite) -- {{{
   local cell = getWorld():getCell();
   self.sq = cell:getGridSquare(x, y, z);
