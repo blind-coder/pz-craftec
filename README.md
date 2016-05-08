@@ -19,7 +19,10 @@ four hours, crates one hour and so on. It always felt weird putting up walls
 and stairs in minutes.  
 To counterbalance that long time, you can stop the project at any time and
 resume working on it later. You can even share the work between different
-people, although only the one finishing the project will get the experience.
+people!  
+Everyone working on the object will get .1 XP for the relevant skill (or for
+Carpentry if skill is "any") per minute. Relevant multipliers will still
+apply.
 
 The code also allows for objects to require certain level in different skills
 and even allows for certain profession. This way you could, for example,
