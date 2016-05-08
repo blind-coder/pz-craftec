@@ -4,6 +4,6 @@ description=This mod is a complete overhaul of the building worldobjects mechani
 id=bcCrafTecs
 require=bcUtils
 
-modversion=0.2.1
+modversion=0.2.2
 pzversion=34.13
 versionurl=https://raw.githubusercontent.com/blind-coder/pz-craftec/master/mod.info
