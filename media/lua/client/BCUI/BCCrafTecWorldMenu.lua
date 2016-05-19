@@ -17,12 +17,13 @@ if not BCCrafTec then BCCrafTec = {} end
 --table.insert(BCCrafTec.Recipes, recipe);
 --
 --More complex:
---lecal recipe = {};
+--local recipe = {};
 --recipe.name = "Metal sheet wall";
 --recipe.resultClass = "MyModMetalSheetWall";
 --recipe.images = { west = "mymod_sheetwall_west", north = "mymod_sheetwall_north", east = nil, south = nil };
 --recipe.tools = { "MyMod.Blowtorch", "MyMod.Simplegloves/MyMod.Workinggloves" }; -- require a blowtorch and either simple gloves or working gloves
 --recipe.ingredients = { ["MyMod.Metalsheet"] = 4, ["MyMod.Blowtorchfuel"] = 1 };
+--recipe.isValid = SomeCustomFunction; -- otherwise _G[recipe.resultClass].isValid will be used
 --recipe.requirements = {
 --	Engineer = {
 --		Woodwork = { -- need an engineer with level 2 or better in woodwoorking for 600 minutes
