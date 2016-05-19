@@ -988,16 +988,3 @@ BCCrafTec.doMenuRecursive = function(menu, recipes, player) -- {{{
 end
 -- }}}
 Events.OnFillWorldObjectContextMenu.Add(BCCrafTec.WorldMenu);
-
---[[ TODO
-function BCCrafTec.loadGridsquare(square)
-	if not isClient() then return; end
-	-- does this square have a BCCrafTec
-	for i=0,square:getObjects():size()-1 do
-		local obj = square:getObjects():get(i)
-		if obj:getModData()["recipe"] then
-		end
-	end
-end
-Events.LoadGridsquare.Add(BCCrafTec.loadGridSquare);
---]]
