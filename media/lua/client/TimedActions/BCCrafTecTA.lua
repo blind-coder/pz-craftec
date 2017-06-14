@@ -136,6 +136,9 @@ function BCCrafTecTA:isValid(square, north) -- {{{
 				if self.isDeconstruction then
 					return true;
 				else
+					if BCCrafTecTA.allowLowerSkill then
+						return true
+					end
 					self.character:Say("I don't have the necessary skills.");
 				end
 			end

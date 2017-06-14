@@ -3,6 +3,7 @@ require "BuildingObjects/ISBuildingObject" -- needed here because RainCollectorB
 require "BuildingObjects/RainCollectorBarrel"
 
 if not BCCrafTec then BCCrafTec = {} end
+BCCrafTec.allowLowerSkill = false; -- set to true to allow lower skill levels to attempt building objects
 --[[
 -- {{{
 --To extend CrafTecs, just add to this object like this:
