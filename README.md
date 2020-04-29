@@ -3,6 +3,12 @@
 This mod is a complete overhaul of the building worldobjects mechanics (like
 walls, doors and such).
 
+# License
+
+![Free For All](https://projectzomboid.com/images/MODS_01.png)
+
+https://theindiestone.com/forums/index.php?/topic/2530-mod-permissions/&tab=comments#comment-36476
+
 # Current state
 
 The mod is fully functional as of IWBUMS 34.something.
