@@ -11,7 +11,15 @@ https://theindiestone.com/forums/index.php?/topic/2530-mod-permissions/&tab=comm
 
 # Current state
 
-The mod is fully functional as of IWBUMS 34.something.
+The mod is fully functional as of IWBUMS 38.30.
+
+# TODO
+
+- Better sprites for the CrafTec worldobject
+- More skill-fail conditions
+- Updating recipes for latest Zomboid version
+  (auto-conversion?)
+
 
 # Mechanics
 
