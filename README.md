@@ -46,6 +46,7 @@ Providing an in-game mechanism for crafting with the following properties:
 - Can be interrupted and resumed as necessary (done)
 - CrafTecs can require multiple professions or Traits, requiring players to
   work together to finish them (done)
-- Optional: Players may try a CrafTec without the required skill, but have only
-  a Player.SkillLvl in CrafTec.RequiredSkillLvl chance to succeed, on fail: parts
-  break and need to be re-acquired (tbd)
+- Players can try to build a CrafTec while lacking the skill (but not the profession).
+  Attempting this triggers a skill check at 25% progress, failing which items may be
+  lost and the character will be injured. Critical failure guarantees additional item
+  loss and injury. (done)
