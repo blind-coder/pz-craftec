@@ -668,6 +668,15 @@ BCCrafTec.startCrafTec = function(player, recipe) -- {{{
 end
 -- }}}
 BCCrafTec.buildCrafTec = function(player, object) -- {{{
+	BCCrafTec.allowLowerSkill = false;
+	BCCrafTec.consumeMaterial(player, object);
+	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
+	local ta = BCCrafTecTA:new(player, object, false);
+	ISTimedActionQueue.add(ta);
+end
+-- }}}
+BCCrafTec.buildCrafTecLackSkill = function(player, object) -- {{{
+	BCCrafTecTA.allowLowerSkill = true;
 	BCCrafTec.consumeMaterial(player, object);
 	if not luautils.walkAdj(getSpecificPlayer(player), object:getSquare()) then return end
 	local ta = BCCrafTecTA:new(player, object, false);
@@ -891,11 +900,23 @@ BCCrafTec.makeTooltip = function(player, recipe) -- {{{
 		end
 	end
 
+	toolTip.lackProfession = false
+	toolTip.lackSkill = false
 	for k,profession in pairs(recipe.requirements) do
-		desc = desc .. "Profession: "..getText(k).." <LINE> ";
+		if getSpecificPlayer(player):getDescriptor():getProfession() == k then
+			desc = desc .. "Profession: <GREEN> "..getText(k).." <RGB:1,1,1> <LINE> ";
+		else
+			desc = desc .. "Profession: <RED> "..getText(k).." <RGB:1,1,1> <LINE> ";
+			toolTip.lackProfession = true
+		end
 		for k,skill in pairs(profession) do
 			if k ~= "any" then
-				desc = desc .. "  Skill: "..getText(k).." Level "..skill["level"].." <LINE> ";
+				if getSpecificPlayer(player):getPerkLevel(Perks.FromString(k)) >= skill.level then
+					desc = desc .. "  Skill: <GREEN> "..getText(k).." Level "..skill["level"].." <RGB:1,1,1> <LINE> ";
+				else
+					desc = desc .. "  Skill: <RED> "..getText(k).." Level "..skill["level"].." <RGB:1,1,1> <LINE> ";
+					toolTip.lackSkill = true
+				end
 			end
 			desc = desc .. "    Progress: "..skill["progress"].." / "..skill["time"].." <LINE> ";
 		end
@@ -957,6 +978,9 @@ BCCrafTec.WorldMenu = function(player, context, worldObjects) -- {{{
 			if md.recipe then
 				local o = context:addOption("Continue "..getText(md.recipe.name), player, BCCrafTec.buildCrafTec, object);
 				o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
+				if o.toolTip.lackSkill then
+					context:addOption("Continue "..getText(md.recipe.name).." without skill requirements", player, BCCrafTec.buildCrafTecLackSkill, object);
+				end
 				local o = context:addOption("Deconstruct "..getText(md.recipe.name), player, BCCrafTec.deconstructCrafTec, object);
 				o.toolTip = BCCrafTec.makeTooltip(player, md.recipe);
 			end

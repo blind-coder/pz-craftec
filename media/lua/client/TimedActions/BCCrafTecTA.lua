@@ -137,6 +137,7 @@ function BCCrafTecTA:isValid(square, north) -- {{{
 					return true;
 				else
 					if BCCrafTecTA.allowLowerSkill then
+						self.character:Say("I will try my very best.");
 						return true
 					end
 					self.character:Say("I don't have the necessary skills.");
@@ -158,6 +159,7 @@ function BCCrafTecTA:update() -- {{{
 	if timeHours < self.lastCheck then timeHours = timeHours + 24 end
 	local elapsedMins = (timeHours - self.lastCheck) * 60
 	local progress = math.floor(elapsedMins + 0.0001)
+
 	if progress > 0 then
 		self.lastCheck = timeHours;
 		for _,skill in pairs(self.canProgress) do
@@ -172,6 +174,51 @@ function BCCrafTecTA:update() -- {{{
 					end
 				end
 			else
+				if skill.level > self.character:getPerkLevel(Perks.FromString(skill.name)) then
+					if skill.progress > 25 and not self.skillCheck25 then
+						diff = skill.level - self.character:getPerkLevel(Perks.FromString(skill.name))
+						fail = 33*diff
+						if fail > 99 then fail = 99 end
+						chance = ZombRandBetween(0, 100);
+						if fail < chance then
+							-- success
+							self.character:Say("This was difficult, but I made it!");
+							self.skillCheck25 = true
+						else
+							self.skillCheck25 = false
+							if chance < 50 then -- bad fail, chance to lose ingredients
+								for part,amount in pairs(self.recipe.ingredients) do
+									if ZombRandBetween(0, 100) < chance then
+										self.recipe.ingredients[part] = self.recipe.ingredients[part] - 1
+									end
+								end
+							end
+							if chance < 3 then -- critical fail, additional guarantee to lose ingredients
+								for part,amount in pairs(self.recipe.ingredients) do
+									self.recipe.ingredients[part] = self.recipe.ingredients[part] - 1
+								end
+								-- whoops
+								self.character:getBodyDamage():getBodyPart(BodyPartType.Torso):setCut(true);
+							end
+							injured = ZombRandBetween(0,4);
+							if injured == 0 then
+								self.character:getBodyDamage():getBodyPart(BodyPartType.Hand_R):setCut(true);
+							end
+							if injured == 1 then
+								self.character:getBodyDamage():getBodyPart(BodyPartType.Hand_L):setCut(true);
+							end
+							if injured == 2 then
+								self.character:getBodyDamage():getBodyPart(BodyPartType.UpperArm_R):setCut(true);
+							end
+							if injured == 3 then
+								self.character:getBodyDamage():getBodyPart(BodyPartType.UpperArm_L):setCut(true);
+							end
+							skill.progress = 0
+							self:stop()
+							self.character:Say("Ouch!");
+						end
+					end
+				end
 				if skill.progress < (skill.time / (100 / self.maxPartsProgress)) then
 					local addXp = 0;
 					if skill.progress + progress > skill.time then
@@ -433,7 +480,7 @@ function BCCrafTecTA:new(character, object, isDeconstruction) -- {{{
 			for k,skill in pairs(skills) do
 				skill.name = k;
 				if (skill.progress < skill.time) and (skill.progress < skill.time / (100 / o.maxPartsProgress))
-				and ((k == "any") or o.character:getPerkLevel(Perks.FromString(k)) >= skill.level) then
+				and ((k == "any") or o.character:getPerkLevel(Perks.FromString(k)) >= skill.level or BCCrafTecTA.allowLowerSkill) then
 					table.insert(o.canProgress, skill);
 				end
 			end
